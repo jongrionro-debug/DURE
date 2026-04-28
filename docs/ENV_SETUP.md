@@ -7,9 +7,11 @@
 지금 바로 준비하면 좋은 것은 아래 2묶음이다.
 
 1. `Supabase`
-2. `이메일 발송 수단`
+2. `도달 가능한 PostgreSQL DATABASE_URL`
 
-이 두 가지가 있으면 기관 생성, 로그인, DB 연결, 강사 초대 링크 발송까지 MVP 핵심 흐름을 막힘 없이 구현할 수 있다.
+이 두 가지가 있으면 기관 생성, 로그인, DB 연결, 운영 기본정보 설정, create-first 세션 생성, 운영자 세션 관리, 강사 제출까지 MVP 핵심 흐름을 막힘 없이 검증할 수 있다.
+
+`RESEND_API_KEY`, `EMAIL_FROM`, `SUPABASE_ATTACHMENTS_BUCKET`은 현재 기준으로 선택 항목이다. 초대 메일 실발송이나 첨부 스토리지를 붙일 때 추가하면 된다.
 
 무료로 먼저 구축해보려면 현재 기준 가장 단순한 조합은 아래다.
 
@@ -18,7 +20,7 @@
 - `Vercel Hobby`
 
 즉, 처음부터 모든 키를 한 번에 준비할 필요는 없다.
-가장 현실적인 순서는 `Supabase 먼저 -> 로컬 개발 시작 -> Resend 추가 -> Vercel 배포`다.
+가장 현실적인 순서는 `Supabase + DATABASE_URL 먼저 -> 로컬 개발 시작 -> 선택적으로 Resend/Storage 추가 -> Vercel 배포`다.
 
 ## 무료 구축 기준 추천 순서
 
@@ -38,6 +40,8 @@ DATABASE_URL=
 - 회원가입 / 로그인
 - 기관 생성 온보딩
 - 기관 / 마을 / 사업 / 수업 / 세션 데이터 저장
+- create-first 세션 생성
+- 운영자 세션 관리
 - 강사 / 운영자 권한 로직
 - 출석 / 교육일지 저장
 
@@ -53,6 +57,7 @@ npm run dev
 스키마 변경이 포함된 브랜치를 새로 받았을 때는 `npm run dev`보다 `npm run db:migrate`를 먼저 실행해야 한다. 이 레포는 인증과 멤버십 조회가 DB 컬럼 형태에 직접 의존하므로, 마이그레이션이 늦으면 로그인이나 온보딩 경로가 바로 깨질 수 있다.
 
 현재 저장소에는 `docker-compose.yml`이 포함되어 있으므로, 팀원들은 로컬 PostgreSQL 설치 대신 `npm run db:up`으로 같은 DB 환경을 맞출 수 있다.
+단, Docker는 편의 수단일 뿐 필수는 아니며 `DATABASE_URL`만 유효하면 외부 Postgres를 써도 된다.
 
 아직 없어도 되는 것:
 
@@ -75,6 +80,8 @@ EMAIL_FROM=
 
 - 강사 이메일 초대 링크 발송
 - 운영자가 직접 초대하는 실제 온보딩 흐름
+
+현재 로컬 MVP에서는 실제 메일 발송 없이도 `/users`에서 초대 토큰을 생성하고 복사해 초대 흐름을 검증할 수 있다.
 
 ### 3단계: 배포 붙이기
 
@@ -139,7 +146,7 @@ EMAIL_FROM=
 - Supabase 프로젝트만 만든다
 - `.env.local`에 Supabase 4개 값만 넣는다
 - `npm run db:migrate`로 현재 schema를 먼저 맞춘다
-- 로컬에서 인증 / 기관 생성 / 기본 CRUD부터 붙인다
+- 로컬에서 인증 / 기관 생성 / 기본 CRUD / 세션 관리 흐름부터 붙인다
 
 ### Day 2 이후
 
@@ -168,6 +175,11 @@ EMAIL_FROM=
 - Resend 계정 생성
 - `RESEND_API_KEY`
 - `EMAIL_FROM`
+
+### 첨부 저장소 붙일 때
+
+- Supabase Storage bucket 생성
+- `SUPABASE_ATTACHMENTS_BUCKET`
 
 ### 배포 직전
 
@@ -209,6 +221,15 @@ DATABASE_URL=
 
 - `SUPABASE_SERVICE_ROLE_KEY`는 절대 클라이언트에 노출되면 안 된다.
 - `NEXT_PUBLIC_`가 붙은 값만 브라우저에 노출될 수 있다.
+
+선택 환경변수:
+
+```env
+SUPABASE_ATTACHMENTS_BUCKET=
+```
+
+- 첨부 업로드를 실제로 켤 때만 필요하다.
+- 값이 없어도 앱 전체는 동작해야 하며, 첨부 업로드만 blocked 상태로 안내되는 것이 정상이다.
 
 ## 2. 강사 초대 구현을 위해 곧 필요한 항목
 
@@ -324,6 +345,7 @@ SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
 RESEND_API_KEY=
 EMAIL_FROM=
+SUPABASE_ATTACHMENTS_BUCKET=
 ```
 
 ### 배포 환경
@@ -347,9 +369,11 @@ Vercel 프로젝트 환경변수에 동일하게 설정
 
 그 다음 준비:
 
-1. 이메일 발송 수단 결정
-2. `RESEND_API_KEY` 또는 SMTP 값
-3. `EMAIL_FROM`
+1. 첨부 업로드를 실제로 쓸 경우 Storage bucket 생성
+2. `SUPABASE_ATTACHMENTS_BUCKET`
+3. 이메일 발송 수단 결정
+4. `RESEND_API_KEY` 또는 SMTP 값
+5. `EMAIL_FROM`
 
 나중에 준비:
 
@@ -362,8 +386,9 @@ Vercel 프로젝트 환경변수에 동일하게 설정
 
 현재 제품 기준으로는 아래 조합이 가장 구현 난이도가 낮다.
 
-- Auth/DB/Storage: `Supabase`
-- 메일 발송: `Resend`
+- Auth/DB: `Supabase + PostgreSQL`
+- 첨부 저장소: 필요 시 `Supabase Storage`
+- 메일 발송: 필요 시 `Resend`
 - 배포: `Vercel`
 
 즉, 지금 제일 먼저 준비할 것은 사실상 아래다.
@@ -373,6 +398,6 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
-RESEND_API_KEY=
-EMAIL_FROM=
 ```
+
+현재 phase 8 로컬 smoke 기준 체크리스트는 `phases/archive/LOCAL_SMOKE_TEST.md`를 함께 참고하는 것을 권장한다.

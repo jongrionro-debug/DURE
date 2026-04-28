@@ -30,13 +30,18 @@
 
 이 저장소는 `배포용 완성 서비스`보다 `로컬에서 실제로 작동하는 MVP`를 목표로 만들어져 있다.
 
-현재 완료된 구현 단계는 `phases/index.json` 기준으로 아래 5개다.
+현재 완료된 구현 단계는 `phases/index.json` 기준으로 아래 8개 중 0~7까지다.
 
 1. Bootstrap foundation
 2. Auth onboarding
 3. Ops setup
 4. Sessions submissions
 5. Dashboard records
+6. Ops UX polish
+7. Flexible session core
+8. Session management dashboard
+
+phase 8인 `Local smoke hardening`은 아직 pending 상태이며, 현재는 문서화와 로컬 검증 기준 정리가 진행 중이다.
 
 지금 실제로 되는 일은 아래와 같다.
 
@@ -50,19 +55,25 @@
   - 수업
   - 참여자
 - 사용자 관리
-  - 초대 토큰 생성
+  - 공유 가능한 전체 초대 토큰 생성/복사
   - 역할 변경
   - 멤버 승인
   - 강사 수업 배정
-- 세션 생성
+- create-first 세션 생성
+- 운영자 세션 관리
+  - 세션별 강사 할당/해제
+  - 기존 참여자 추가
+  - 새 참여자 생성 후 즉시 추가
 - 세션 시점 참여자 스냅샷 생성
 - 강사 세션 목록 조회
 - 출석 입력
 - 교육일지 제출 및 수정
+- 참여자 0명 세션 제출 차단
 - 첨부 문서 업로드
   - 단, 스토리지 환경변수가 있어야 실제 업로드 가능
 - 운영자 대시보드
 - 기록 검색/필터/상세 조회
+- 기록 상세에서 세션 관리 바로가기
 
 ## 2.1 한눈에 보는 시스템 그림
 
@@ -225,6 +236,7 @@ erDiagram
   -> /settings에서 기본정보 입력
   -> /users에서 강사 초대/승인/배정
   -> /dashboard에서 세션 생성
+  -> /dashboard/sessions/[sessionId]에서 강사/참여자 후속 관리
   -> /records에서 제출 기록 조회
 ```
 
@@ -236,6 +248,7 @@ erDiagram
 - 설정 화면: `src/components/ops/settings-screen.tsx`
 - 사용자 관리 화면: `src/components/ops/users-screen.tsx`
 - 대시보드 화면: `src/components/ops/dashboard-screen.tsx`
+- 세션 관리 화면: `src/components/ops/session-management-screen.tsx`
 - 기록 브라우저: `src/components/records/records-browser.tsx`
 
 ### 4.2 강사 흐름
@@ -288,6 +301,7 @@ erDiagram
 
 - `src/app/(ops)/layout.tsx`
 - `src/app/(ops)/dashboard/page.tsx`
+- `src/app/(ops)/dashboard/sessions/[sessionId]/page.tsx`
 - `src/app/(ops)/settings/page.tsx`
 - `src/app/(ops)/users/page.tsx`
 - `src/app/(ops)/records/page.tsx`
@@ -354,8 +368,12 @@ erDiagram
 - 기관 생성 시 organization, village, membership을 한 번에 만든다.
 - teacher 역할이면서 승인된 사용자만 수업에 배정할 수 있다.
 - 세션 생성 시 수업-사업-마을 조합이 맞는지 검사한다.
-- 세션 생성 시 참여자 스냅샷이 반드시 생긴다.
+- 세션 생성 시 강사/참여자가 없어도 create-first 생성은 허용한다.
+- 세션 생성 시 참여자가 있으면 스냅샷을 만들고, 없어도 세션 자체는 유지한다.
+- 운영자 세션 관리에서는 승인된 teacher만 세션에 할당할 수 있고, 빈 값 저장으로 할당 해제가 가능하다.
+- 운영자 세션 관리에서 같은 참여자를 같은 세션에 중복 추가할 수 없다.
 - 강사는 자기에게 배정된 세션만 제출할 수 있다.
+- 참여자 0명 세션은 강사 제출이 차단된다.
 - 출석은 세션 스냅샷 수와 정확히 일치해야 한다.
 - `submitted_at`은 최초 제출 시각만 유지한다.
 
@@ -481,7 +499,8 @@ membership이 의미하는 것은 아래와 같다.
 운영자가 세션 생성
   -> class에 연결된 participants 조회
   -> sessions 테이블에 세션 생성
-  -> session_participant_snapshots에 복사 저장
+  -> 참여자가 있으면 session_participant_snapshots에 복사 저장
+  -> 참여자가 없어도 세션은 먼저 유지
   -> 이후 강사 출석은 이 스냅샷 기준으로 입력
 ```
 
@@ -495,6 +514,8 @@ membership이 의미하는 것은 아래와 같다.
 
 - `buildSessionParticipantSnapshots()` in `src/server/services/sessions.ts`
 - `createSessionRecord()` in `src/server/services/sessions.ts`
+
+운영자가 세션 생성 후 뒤늦게 참여자를 추가하면, 원본 `participants`와 해당 세션의 `session_participant_snapshots`에 함께 반영된다. 이미 제출된 세션이라면 기존 `attendance_records`를 강제로 재생성하지 않고, 새 참여자는 강사가 다시 수정 저장하기 전까지 `미입력`으로 노출한다.
 
 ## 10. 운영자 기능은 내부적으로 어떻게 구현되어 있는가
 
@@ -556,6 +577,28 @@ membership이 의미하는 것은 아래와 같다.
 
 즉 대시보드는 “세션 생성 도구”와 “운영 현황 요약”을 한 화면에 묶은 구조다.
 
+phase 6~7 이후에는 강사 미할당 세션도 운영자가 놓치지 않도록 대시보드 조회 결과에서 계속 유지한다. 또한 최근 제출, 미제출, 세션 카드에서 바로 `/dashboard/sessions/[sessionId]` 세션 관리 화면으로 들어가 후속 강사 할당과 참여자 추가를 마무리할 수 있다.
+
+### 10.4 세션 관리
+
+운영자는 `/dashboard/sessions/[sessionId]`에서 create-first로 만든 세션을 보정한다.
+
+이 화면에서 가능한 작업은 아래와 같다.
+
+- 세션별 강사 할당
+- 세션별 강사 할당 해제
+- 전체 참여자 명단의 기존 참여자 추가
+- 새 참여자 생성 후 즉시 세션 추가
+- 제출 여부와 최근 변경 시각 확인
+- 기록 상세 화면으로 이동
+
+관련 파일:
+
+- 페이지: `src/app/(ops)/dashboard/sessions/[sessionId]/page.tsx`
+- 화면: `src/components/ops/session-management-screen.tsx`
+- 액션: `src/server/actions/session-management.ts`
+- 서비스: `src/server/services/session-management.ts`
+
 ## 11. 강사 제출 기능은 내부적으로 어떻게 구현되어 있는가
 
 강사 제출은 이 저장소에서 가장 중요한 업무 흐름 중 하나다.
@@ -594,8 +637,9 @@ membership이 의미하는 것은 아래와 같다.
 
 1. 자기에게 배정된 세션인가
 2. 첨부 메타데이터가 유효한가
-3. 출석 row 수가 스냅샷 수와 정확히 일치하는가
-4. 중복 스냅샷 ID는 없는가
+3. 세션 snapshot이 최소 1명 이상 있는가
+4. 출석 row 수가 스냅샷 수와 정확히 일치하는가
+5. 중복 스냅샷 ID는 없는가
 
 검사 후 아래처럼 저장된다.
 
@@ -672,12 +716,15 @@ attendance_records upsert
 - 첨부 목록
 - 제출 시각
 - 최근 수정 시각
+- 세션 관리 바로가기
 
 핵심 함수:
 
 - `getOperatorRecordDetail()` in `src/server/services/records.ts`
 
-즉 운영자는 강사 화면을 직접 보지 않아도, 제출 결과를 읽기 전용으로 한 화면에서 검토할 수 있다.
+기록 상세에서는 강사가 아직 배정되지 않은 경우에도 `강사 미할당` 상태를 확인할 수 있고, 필요하면 같은 세션의 세션 관리 화면으로 바로 이동할 수 있다.
+
+즉 운영자는 강사 화면을 직접 보지 않아도, 제출 결과를 읽기 전용으로 검토하다가 바로 후속 세션 관리까지 이어갈 수 있다.
 
 ## 14. 이 시스템에서 가장 중요한 안전장치
 
@@ -714,7 +761,19 @@ attendance_records upsert
 
 즉 UI와 서비스 양쪽에서 방어한다.
 
-### 14.4 제출 시점과 수정 시점을 분리한다
+### 14.4 create-first 세션은 운영자 보정 흐름과 함께 본다
+
+세션은 강사와 참여자 없이 먼저 생성할 수 있지만, 그 상태가 곧바로 강사 제출 가능 상태를 의미하지는 않는다.
+
+운영자는 세션 관리 화면에서 아래를 보정한다.
+
+1. 강사 할당 또는 할당 해제
+2. 참여자 추가
+3. 제출 전후 상태 확인
+
+즉 create-first는 “불완전한 세션 허용”이 아니라 “운영자가 후속 조치를 제품 안에서 끝낼 수 있는 설계”다.
+
+### 14.5 제출 시점과 수정 시점을 분리한다
 
 이 시스템은 “제출했는가?”와 “그 뒤에 수정되었는가?”를 구분한다.
 
@@ -744,6 +803,16 @@ attendance_records upsert
 
 즉 인증과 DB는 필수고, 메일과 첨부 업로드는 선택적 확장 요소다.
 
+현재 로컬 실행 순서는 `npm install -> npm run db:up -> npm run db:migrate -> npm run dev`를 기본으로 본다. 스키마가 바뀐 브랜치를 받았을 때는 `npm run db:migrate`를 먼저 실행해야 phase 6~7의 세션 관리 관련 컬럼과 규칙이 맞춰진다.
+
+추가로 phase 8 기준 smoke는 성공 경로뿐 아니라 아래 blocked 상태도 정상 정책으로 본다.
+
+- 참여자 0명 세션 제출 차단
+- 승인 대기 멤버 접근 차단
+- `SUPABASE_ATTACHMENTS_BUCKET` 미설정 시 첨부 업로드 차단
+
+현재 체크리스트 원본은 `phases/archive/LOCAL_SMOKE_TEST.md`다.
+
 ## 16. 현재 기준으로 아직 미구현이거나 제한적인 것
 
 처음 보는 사람이 이 저장소를 완성형 제품으로 오해하지 않도록, 아직 없는 것도 같이 알아야 한다.
@@ -758,6 +827,7 @@ attendance_records upsert
 - 승인/반려 워크플로우 고도화
 - 학생/학부모용 별도 앱
 - 자유도 높은 폼 빌더
+- phase 8 smoke 결과의 최신 실행 증적 정리
 
 또한 사용자 관리와 일부 필터링은 MVP답게 단순 구현이다. 예를 들어 기록 필터는 현재 메모리 후처리 방식이며, 더 큰 데이터셋이 되면 DB 레벨 검색 최적화가 필요해질 수 있다.
 
