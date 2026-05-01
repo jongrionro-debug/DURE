@@ -198,6 +198,7 @@ export async function getOperatorRecordDetail(
         fileName: attachments.fileName,
         mimeType: attachments.mimeType,
         size: attachments.size,
+        filePath: attachments.filePath,
       })
       .from(attachments)
       .where(
