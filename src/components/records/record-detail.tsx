@@ -124,14 +124,36 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
               </p>
               <div className="mt-4 space-y-2">
                 {record.attachments.length ? (
-                  record.attachments.map((attachment) => (
-                    <div
-                      key={attachment.id}
-                      className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-secondary)]"
-                    >
-                      {attachment.fileName} · {Math.ceil(attachment.size / 1024)}KB
-                    </div>
-                  ))
+                  record.attachments.map((attachment) => {
+                    // 수파베이스 스토리지의 공개 URL을 생성합니다.
+                    // 형식: [PROJECT_URL]/storage/v1/object/public/[BUCKET_NAME]/[FILE_ID]
+                    const publicUrl = `https://sbpjolnlnwryjcwfjojd.supabase.co/storage/v1/object/public/session-attachments/${attachment.fileName}`;
+            
+                    return (
+                      <div
+                        key={attachment.id}
+                        className="flex items-center justify-between rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm"
+                      >
+                        <div className="flex flex-col text-[var(--color-text-secondary)]">
+                          <span className="font-medium text-[var(--color-text-primary)]">
+                            {attachment.fileName}
+                          </span>
+                          <span className="text-xs">
+                            {Math.ceil(attachment.size / 1024)}KB · {attachment.mimeType}
+                          </span>
+                        </div>
+                        
+                        <a
+                          href={publicUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full bg-[var(--color-surface)] px-4 py-2 text-xs font-bold text-[var(--color-text-primary)] border border-[var(--color-border)] transition hover:bg-[var(--color-accent)] hover:text-[var(--color-accent-ink)]"
+                        >
+                          보기 / 다운로드
+                        </a>
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-secondary)]">
                     첨부 문서가 없습니다.
