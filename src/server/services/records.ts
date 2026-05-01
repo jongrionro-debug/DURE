@@ -135,6 +135,7 @@ export async function getOperatorRecordDetail(
     db
       .select({
         id: sessions.id,
+        organizationId: sessions.organizationId,
         sessionDate: sessions.sessionDate,
         className: classes.name,
         villageName: villages.name,
