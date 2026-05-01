@@ -24,6 +24,7 @@ type RecordDetail = {
     fileName: string;
     mimeType: string;
     size: number;
+    filePath: string;
   }>;
 };
 
