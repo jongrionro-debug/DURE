@@ -2,6 +2,7 @@ import Link from "next/link";
 
 type RecordDetail = {
   id: string;
+  organizationId: string;
   sessionDate: string;
   className: string;
   villageName: string;
