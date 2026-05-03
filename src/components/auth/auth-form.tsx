@@ -4,6 +4,7 @@ import Image from "next/image";
 import { startTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 
+import { BrandMark } from "@/components/ui/brand-mark";
 import { getSupabaseBrowserClient } from "@/lib/auth/supabase-browser";
 
 type AuthFormProps = {
@@ -89,22 +90,7 @@ export function AuthForm({ mode }: AuthFormProps) {
     <main className="flex min-h-screen flex-1 items-center justify-center bg-[#f6f1e8] px-4 py-8 text-[#111111]">
       <section className="flex min-h-[min(88vh,940px)] w-full max-w-[1347px] flex-col rounded-[34px] bg-[#fffdf8] px-5 py-12 shadow-[0_0_16px_rgba(255,255,255,0.6)] sm:rounded-[50px] sm:px-10 lg:px-[clamp(5rem,14vw,12.5rem)]">
         <header className="flex items-center justify-center gap-4">
-          <div className="relative h-[48px] w-[52px] overflow-hidden">
-            <Image
-              src="/figma-assets/login-brand-mark.png"
-              alt=""
-              width={1536}
-              height={1024}
-              priority
-              className="absolute max-w-none"
-              style={{
-                height: "186.67%",
-                left: "-62.17%",
-                top: "-35.24%",
-                width: "223.57%",
-              }}
-            />
-          </div>
+          <BrandMark className="h-[48px] w-[52px]" priority />
 
           <h1 className="flex items-baseline gap-2 whitespace-nowrap text-[42px] font-black leading-none">
             <span

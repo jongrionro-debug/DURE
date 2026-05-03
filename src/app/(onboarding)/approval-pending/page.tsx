@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { getDb } from "@/lib/db/client";
 import { organizationMemberships, organizations } from "@/lib/db/schema";
 import { getServerAuthState } from "@/lib/auth/supabase-server";
@@ -58,14 +59,7 @@ export default async function ApprovalPendingPage() {
     <main className="min-h-screen bg-[#f6f1e8] px-6 py-6 text-[#111111] sm:px-8 lg:px-10">
       <header className="mx-auto flex w-full max-w-[1360px] items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
-          <Image
-            src="/figma-assets/approval-logo.png"
-            alt=""
-            width={58}
-            height={50}
-            className="h-[50px] w-[58px] object-cover"
-            priority
-          />
+          <BrandMark className="h-[43px] w-[47px] sm:h-[48px] sm:w-[52px]" priority />
           <div className="flex min-w-0 items-baseline gap-2 font-black text-[#111111]">
             <span className="text-[36px] leading-none sm:text-[40px]">DURE</span>
             <span className="text-[24px] leading-none sm:text-[28px]">: 두레</span>

@@ -219,4 +219,24 @@ describe("DashboardScreen", () => {
     );
     expect(screen.getByText("2026.05.02(토) · 문해 사업 · 성내마을")).toBeInTheDocument();
   });
+
+  it("shows an empty participant state instead of example names for real empty sessions", () => {
+    render(
+      <DashboardScreen
+        data={baseData}
+        dashboard={baseDashboard}
+        sessionManagementRecords={[
+          {
+            ...sessionManagementRecords[0],
+            snapshots: [],
+          },
+        ]}
+        activeView="status"
+      />,
+    );
+
+    expect(screen.getByText("아직 세션 참여자가 없습니다.")).toBeInTheDocument();
+    expect(screen.queryByText("김경원")).not.toBeInTheDocument();
+    expect(screen.queryByText("김영희")).not.toBeInTheDocument();
+  });
 });

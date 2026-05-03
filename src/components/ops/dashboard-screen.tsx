@@ -390,8 +390,9 @@ function StatusSummaryView({
     initialState,
   );
   const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
+  const isExampleMode = data.recentSessions.length === 0;
   const sessions =
-    data.recentSessions.length > 0
+    !isExampleMode
       ? data.recentSessions
       : [
           {
@@ -434,18 +435,16 @@ function StatusSummaryView({
     dashboard.recentSubmissions[0] ??
     dashboard.pendingSessions[0];
   const totalSessions = dashboard.submissionOverview.totalSessions;
-  const snapshots = selectedManagement?.snapshots;
-  const visibleParticipants =
-    snapshots && snapshots.length
-      ? snapshots
-      : exampleParticipants.map((participant, index) => ({
+  const visibleParticipants = isExampleMode
+    ? exampleParticipants.map((participant, index) => ({
           id: `example-snapshot-${index}`,
           participantId: null,
           fullName: participant,
           note: null,
           rosterOrder: index,
           attendanceStatus: null,
-        }));
+        }))
+    : selectedManagement?.snapshots ?? [];
   const availableParticipants = selectedManagement?.participants ?? [];
 
   return (
@@ -588,33 +587,39 @@ function StatusSummaryView({
           </div>
         ) : null}
 
-        <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {visibleParticipants.map((participant) => (
-            <div
-              key={participant.id}
-              className="relative flex min-h-[106px] flex-col items-center justify-center rounded-[18px] bg-[#f6f1e8] px-4 py-5 text-center sm:min-h-[125px] sm:rounded-[25px]"
-            >
-              <form action={removeParticipantAction}>
-                <input type="hidden" name="sessionId" value={selectedSession.id} />
-                <input type="hidden" name="snapshotId" value={participant.id} />
-                <button
-                  aria-label={`${participant.fullName} 제거`}
-                  disabled={!selectedManagement}
-                  className="absolute right-3 top-3 flex size-[16px] items-center justify-center rounded-full bg-[#ff4b4b] text-[12px] font-bold leading-none text-white transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4b4b]"
-                >
-                  -
-                </button>
-              </form>
-              <p className="text-[21px] font-extrabold text-black sm:text-[23px]">
-                {participant.fullName}
-              </p>
-              <p className="mt-3 text-[16px] font-medium text-[#555555] sm:text-[20px]">
-                {participant.attendanceStatus ?? "미입력"} ·{" "}
-                {participant.note ?? "메모 없음"}
-              </p>
-            </div>
-          ))}
-        </div>
+        {visibleParticipants.length ? (
+          <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {visibleParticipants.map((participant) => (
+              <div
+                key={participant.id}
+                className="relative flex min-h-[106px] flex-col items-center justify-center rounded-[18px] bg-[#f6f1e8] px-4 py-5 text-center sm:min-h-[125px] sm:rounded-[25px]"
+              >
+                <form action={removeParticipantAction}>
+                  <input type="hidden" name="sessionId" value={selectedSession.id} />
+                  <input type="hidden" name="snapshotId" value={participant.id} />
+                  <button
+                    aria-label={`${participant.fullName} 제거`}
+                    disabled={!selectedManagement}
+                    className="absolute right-3 top-3 flex size-[16px] items-center justify-center rounded-full bg-[#ff4b4b] text-[12px] font-bold leading-none text-white transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4b4b]"
+                  >
+                    -
+                  </button>
+                </form>
+                <p className="text-[21px] font-extrabold text-black sm:text-[23px]">
+                  {participant.fullName}
+                </p>
+                <p className="mt-3 text-[16px] font-medium text-[#555555] sm:text-[20px]">
+                  {participant.attendanceStatus ?? "미입력"} ·{" "}
+                  {participant.note ?? "메모 없음"}
+                </p>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-5 rounded-[18px] bg-[#f6f1e8] px-4 py-8 text-center text-[18px] font-semibold text-[#555555]">
+            아직 세션 참여자가 없습니다.
+          </p>
+        )}
         <Feedback state={removeParticipantState} />
       </section>
     </section>

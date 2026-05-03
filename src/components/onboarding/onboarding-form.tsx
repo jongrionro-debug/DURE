@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { BrandMark } from "@/components/ui/brand-mark";
 import {
   type OnboardingActionState,
   acceptInviteOnboardingAction,
@@ -41,27 +42,6 @@ function InviteSubmitButton() {
 
 const initialState: OnboardingActionState = {};
 
-function BrandMark({ className = "h-[76px] w-[82px]" }: { className?: string }) {
-  return (
-    <div className={`relative overflow-hidden ${className}`}>
-      <Image
-        src="/figma-assets/login-brand-mark.png"
-        alt=""
-        width={1536}
-        height={1024}
-        priority
-        className="absolute max-w-none"
-        style={{
-          height: "186.67%",
-          left: "-62.17%",
-          top: "-35.24%",
-          width: "223.57%",
-        }}
-      />
-    </div>
-  );
-}
-
 export function OnboardingForm({ email }: { email?: string | null }) {
   const [state, formAction] = useActionState<OnboardingActionState, FormData>(
     createOrganizationOnboardingAction,
@@ -79,7 +59,7 @@ export function OnboardingForm({ email }: { email?: string | null }) {
     <main className="min-h-screen bg-[#f6f1e8] px-4 pb-8 pt-3 text-[#111111] sm:px-8">
       <header className="mx-auto flex w-full max-w-[1360px] flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center">
-          <BrandMark />
+          <BrandMark className="h-[48px] w-[52px] sm:h-[68px] sm:w-[74px]" priority />
           <h1 className="ml-2 flex items-baseline gap-2 whitespace-nowrap text-[42px] font-black leading-none sm:text-[60px]">
             <span
               style={{
