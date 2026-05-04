@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DemoEntryLink } from "@/components/demo/demo-entry-link";
 import { BrandMark } from "@/components/ui/brand-mark";
 
 export default function Home() {
@@ -37,6 +38,8 @@ export default function Home() {
         >
           시작하기
         </Link>
+
+        <DemoEntryLink />
       </section>
     </main>
   );
