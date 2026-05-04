@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { startTransition, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { BrandMark } from "@/components/ui/brand-mark";
 import { getSupabaseBrowserClient } from "@/lib/auth/supabase-browser";
+import { getDemoEnv } from "@/lib/env";
 
 type AuthFormProps = {
   mode: "login" | "signup";
@@ -31,7 +32,11 @@ const passwordPattern =
 export function AuthForm({ mode }: AuthFormProps) {
   const copy = modeCopy[mode];
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const searchParams = useSearchParams();
+  const demoEnv = getDemoEnv();
+  const isDemoLogin =
+    mode === "login" && demoEnv.enabled && searchParams.get("demo") === "1";
+  const [email, setEmail] = useState(isDemoLogin ? demoEnv.email ?? "" : "");
   const [password, setPassword] = useState("");
   const [rememberLogin, setRememberLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -208,6 +213,12 @@ export function AuthForm({ mode }: AuthFormProps) {
           {feedback ? (
             <p className="mt-5 rounded-[18px] bg-[#f6f1e8] px-5 py-3 text-[15px] leading-6 text-[#555555]">
               {feedback}
+            </p>
+          ) : null}
+
+          {isDemoLogin ? (
+            <p className="mt-5 rounded-[18px] bg-[#fff7b8] px-5 py-3 text-[15px] leading-6 text-[#555555]">
+              데모 계정으로 제품 흐름을 바로 확인할 수 있습니다.
             </p>
           ) : null}
 
