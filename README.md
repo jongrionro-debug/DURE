@@ -143,3 +143,16 @@ SUPABASE_ATTACHMENTS_BUCKET=
 4. 비밀값은 `.env.local` 파일째 전달하지 않고 키 단위로 안전하게 공유한다.
 
 이 기준으로 정리하면, 다른 사람도 같은 개발 환경으로 비교적 안정적으로 바로 붙을 수 있다.
+
+## 공개 데모 링크 배포
+
+링크만으로 체험 가능한 데모는 Vercel + 전용 Supabase 프로젝트 조합으로 운영한다.
+
+핵심 순서:
+
+```bash
+npm run db:migrate
+npm run db:seed:demo
+```
+
+필요한 demo 환경변수와 세부 절차는 `docs/ENV_SETUP.md`의 `공개 데모 링크 환경` 섹션을 따른다.

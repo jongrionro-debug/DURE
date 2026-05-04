@@ -158,6 +158,33 @@ EMAIL_FROM=
 - Vercel Hobby 프로젝트를 만든다
 - 로컬에서 쓰던 환경변수를 Vercel에 그대로 등록한다
 
+## 공개 데모 링크 환경
+
+공개 체험 링크는 로컬 Docker DB가 아니라 Vercel과 전용 Supabase 프로젝트를 사용한다.
+
+Vercel Demo 프로젝트 필수 값:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+DATABASE_URL=
+NEXT_PUBLIC_DEMO_ENABLED=true
+NEXT_PUBLIC_DEMO_EMAIL=demo@example.com
+DEMO_PASSWORD=
+DEMO_ORGANIZATION_SLUG=dure-demo
+```
+
+배포 준비 순서:
+
+1. Supabase에서 데모 전용 프로젝트를 만든다.
+2. Vercel 프로젝트에 위 환경변수를 등록한다.
+3. 같은 값이 들어 있는 로컬 운영자 `.env.local`에서 `npm run db:migrate`를 실행한다.
+4. `npm run db:seed:demo`로 데모 계정과 샘플 데이터를 만든다.
+5. Vercel 배포 URL에서 `데모로 체험하기`를 눌러 로그인 흐름을 확인한다.
+
+주의: 공개 데모는 실제 운영 데이터나 프로덕션 Supabase 프로젝트를 공유하지 않는다.
+
 ## 지금 바로 맡기기 좋은 체크리스트
 
 아래 체크리스트를 그대로 전달하면 된다.
