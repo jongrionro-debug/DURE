@@ -122,15 +122,6 @@ const actionCards = [
 const nextActionCardClassName =
   "flex min-h-[82px] items-center justify-center rounded-[14px] border-2 border-[#fcce00] bg-white px-6 text-center text-[22px] font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#ffec1d] hover:shadow-[0_4px_4px_rgba(0,0,0,0.16)] focus-visible:bg-[#ffec1d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fcce00] sm:min-h-[114px] sm:rounded-[20px] sm:text-[25px]";
 
-const exampleParticipants = [
-  "김경원",
-  "김준한",
-  "노종현",
-  "박수현",
-  "정병국",
-  "홍길동",
-] as const;
-
 function formatDateTimeLabel(value: Date) {
   return new Intl.DateTimeFormat("ko-KR", {
     month: "short",
@@ -200,11 +191,26 @@ function DashboardTitle() {
 }
 
 function Feedback({ state }: { state: ActionState }) {
-  return state.message ? (
-    <p className="mt-4 rounded-[18px] bg-[#fff9db] px-4 py-3 text-sm font-semibold text-[#8f7700]">
-      {state.message}
-    </p>
-  ) : null;
+  const fieldErrors = Object.values(state.fieldErrors ?? {}).flatMap(
+    (errors) => errors ?? [],
+  );
+
+  if (!state.message && !fieldErrors.length) {
+    return null;
+  }
+
+  return (
+    <div className="mt-4 rounded-[18px] bg-[#fff9db] px-4 py-3 text-sm font-semibold text-[#8f7700]">
+      {state.message ? <p>{state.message}</p> : null}
+      {fieldErrors.length ? (
+        <ul className="mt-2 list-disc space-y-1 pl-5">
+          {fieldErrors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
+  );
 }
 
 function SessionCreateModal({
@@ -403,7 +409,7 @@ function StatusSummaryView({
             programName: "예시 사업",
             teacherName: "예시선생",
             teacherEmail: null,
-            snapshotCount: exampleParticipants.length,
+            snapshotCount: 0,
             submittedAt: null,
           },
         ];
@@ -435,16 +441,7 @@ function StatusSummaryView({
     dashboard.recentSubmissions[0] ??
     dashboard.pendingSessions[0];
   const totalSessions = dashboard.submissionOverview.totalSessions;
-  const visibleParticipants = isExampleMode
-    ? exampleParticipants.map((participant, index) => ({
-          id: `example-snapshot-${index}`,
-          participantId: null,
-          fullName: participant,
-          note: null,
-          rosterOrder: index,
-          attendanceStatus: null,
-        }))
-    : selectedManagement?.snapshots ?? [];
+  const visibleParticipants = selectedManagement?.snapshots ?? [];
   const availableParticipants = selectedManagement?.participants ?? [];
 
   return (
@@ -537,12 +534,19 @@ function StatusSummaryView({
           <button
             type="button"
             aria-label="참여자 추가"
+            disabled={isExampleMode}
             onClick={() => setIsAddPanelOpen((isOpen) => !isOpen)}
-            className="flex size-9 items-center justify-center rounded-full border-2 border-[#fcce00] bg-white text-[28px] font-extrabold leading-none text-black transition hover:bg-[#ffec1d] focus-visible:bg-[#ffec1d] focus-visible:outline-none"
+            className="flex size-9 items-center justify-center rounded-full border-2 border-[#fcce00] bg-white text-[28px] font-extrabold leading-none text-black transition hover:bg-[#ffec1d] focus-visible:bg-[#ffec1d] focus-visible:outline-none disabled:cursor-not-allowed disabled:border-[#d8cdbb] disabled:text-[#9d9a95] disabled:hover:bg-white"
           >
             <span aria-hidden="true">+</span>
           </button>
         </div>
+
+        {isExampleMode ? (
+          <p className="mt-4 rounded-[18px] bg-[#fff9db] px-4 py-3 text-[16px] font-semibold text-[#8f7700]">
+            세션을 먼저 만든 뒤 참여자를 한 명씩 추가할 수 있습니다.
+          </p>
+        ) : null}
 
         {isAddPanelOpen ? (
           <div className="mt-5 grid gap-4 rounded-[20px] bg-[#fffdf8] p-4 lg:grid-cols-2">

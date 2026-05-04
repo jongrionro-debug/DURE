@@ -51,7 +51,7 @@ describe("session services", () => {
     ]);
   });
 
-  it("creates a scoped session and copies roster snapshots", async () => {
+  it("creates a scoped session with no participant snapshots by default", async () => {
     const insertedSessions: unknown[] = [];
     const insertedSnapshots: unknown[] = [];
 
@@ -78,14 +78,6 @@ describe("session services", () => {
           classId: "class-1",
           userId: "teacher-1",
         }),
-        listParticipantsForClass: async () => [
-          {
-            id: "participant-1",
-            organizationId: "org-1",
-            fullName: "홍길동",
-            note: "앞줄",
-          },
-        ],
         insertSession: async (values) => {
           insertedSessions.push(values);
           return {
@@ -101,7 +93,7 @@ describe("session services", () => {
 
     expect(result).toEqual({
       sessionId: "session-1",
-      snapshotCount: 1,
+      snapshotCount: 0,
     });
     expect(insertedSessions).toEqual([
       {
@@ -113,18 +105,7 @@ describe("session services", () => {
         sessionDate: "2026-04-15",
       },
     ]);
-    expect(insertedSnapshots).toEqual([
-      [
-        {
-          sessionId: "session-1",
-          organizationId: "org-1",
-          participantId: "participant-1",
-          rosterOrder: 0,
-          fullName: "홍길동",
-          note: "앞줄",
-        },
-      ],
-    ]);
+    expect(insertedSnapshots).toEqual([]);
   });
 
   it("creates a session without a teacher and without roster snapshots", async () => {
@@ -153,7 +134,6 @@ describe("session services", () => {
         findTeacherAssignment: async () => {
           throw new Error("teacher assignment should not be checked");
         },
-        listParticipantsForClass: async () => [],
         insertSession: async (values) => {
           insertedSessions.push(values);
           return {
@@ -206,14 +186,6 @@ describe("session services", () => {
           hasVillageRecord: async () => true,
           hasProgramRecord: async () => true,
           findTeacherAssignment: async () => null,
-          listParticipantsForClass: async () => [
-            {
-              id: "participant-1",
-              organizationId: "org-1",
-              fullName: "홍길동",
-              note: null,
-            },
-          ],
           insertSession: async () => ({
             id: "session-1",
             organizationId: "org-1",
@@ -249,7 +221,6 @@ describe("session services", () => {
             classId: "class-1",
             userId: "teacher-1",
           }),
-          listParticipantsForClass: async () => [],
           insertSession: async () => ({
             id: "session-1",
             organizationId: "org-1",

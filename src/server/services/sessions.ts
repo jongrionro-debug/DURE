@@ -3,7 +3,6 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import {
   classes,
-  participants,
   programs,
   sessionParticipantSnapshots,
   sessions,
@@ -61,10 +60,6 @@ type SessionRepository = {
     classId: string,
     teacherId: string,
   ): Promise<SessionTeacherAssignmentRecord | null>;
-  listParticipantsForClass(
-    organizationId: string,
-    classId: string,
-  ): Promise<SessionParticipantRecord[]>;
   insertSession(
     values: typeof sessions.$inferInsert,
   ): Promise<{ id: string; organizationId: string }>;
@@ -154,23 +149,6 @@ function createSessionRepository(): SessionRepository {
         .limit(1);
 
       return assignment ?? null;
-    },
-    async listParticipantsForClass(organizationId, classId) {
-      return db
-        .select({
-          id: participants.id,
-          organizationId: participants.organizationId,
-          fullName: participants.fullName,
-          note: participants.note,
-        })
-        .from(participants)
-        .where(
-          and(
-            eq(participants.organizationId, organizationId),
-            eq(participants.classId, classId),
-          ),
-        )
-        .orderBy(asc(participants.fullName));
     },
     async insertSession(values) {
       const [session] = await db.insert(sessions).values(values).returning({
@@ -290,12 +268,11 @@ export async function createSessionRecord(
   },
   repository: SessionRepository = createSessionRepository(),
 ) {
-  const [hasVillage, hasProgram, classRecord, participantRows] =
+  const [hasVillage, hasProgram, classRecord] =
     await Promise.all([
       repository.hasVillageRecord(input.organizationId, input.villageId),
       repository.hasProgramRecord(input.organizationId, input.programId),
       repository.findClassRecord(input.organizationId, input.classId),
-      repository.listParticipantsForClass(input.organizationId, input.classId),
     ]);
 
   if (!hasVillage) {
@@ -347,19 +324,9 @@ export async function createSessionRecord(
     sessionDate: input.sessionDate,
   });
 
-  if (participantRows.length) {
-    await repository.insertSessionParticipantSnapshots(
-      buildSessionParticipantSnapshots(
-        session.id,
-        session.organizationId,
-        participantRows,
-      ),
-    );
-  }
-
   return {
     sessionId: session.id,
-    snapshotCount: participantRows.length,
+    snapshotCount: 0,
   };
 }
 

@@ -57,7 +57,7 @@ const baseData = {
       programName: "예시 사업",
       teacherName: "예시선생",
       teacherEmail: "teacher@example.com",
-      snapshotCount: 6,
+      snapshotCount: 1,
       submittedAt: null,
     },
     {
@@ -238,5 +238,27 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("아직 세션 참여자가 없습니다.")).toBeInTheDocument();
     expect(screen.queryByText("김경원")).not.toBeInTheDocument();
     expect(screen.queryByText("김영희")).not.toBeInTheDocument();
+  });
+
+  it("keeps participant add controls inactive for the no-session example state", () => {
+    render(
+      <DashboardScreen
+        data={{ ...baseData, recentSessions: [] }}
+        dashboard={{
+          ...baseDashboard,
+          submissionOverview: {
+            ...baseDashboard.submissionOverview,
+            totalSessions: 0,
+          },
+        }}
+        activeView="status"
+      />,
+    );
+
+    expect(screen.getByText("아직 세션 참여자가 없습니다.")).toBeInTheDocument();
+    expect(
+      screen.getByText("세션을 먼저 만든 뒤 참여자를 한 명씩 추가할 수 있습니다."),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "참여자 추가" })).toBeDisabled();
   });
 });
