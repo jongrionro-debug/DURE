@@ -39,6 +39,12 @@ const optionalStorageSchema = z.object({
   SUPABASE_ATTACHMENTS_BUCKET: z.string().min(1).optional(),
 });
 
+const demoEnvSchema = z.object({
+  NEXT_PUBLIC_DEMO_ENABLED: z.enum(["true", "false"]).optional(),
+  NEXT_PUBLIC_DEMO_EMAIL: z.string().email().optional(),
+  DEMO_ORGANIZATION_SLUG: z.string().min(1).optional(),
+});
+
 function formatIssues(title: string, error: z.ZodError) {
   const details = error.issues
     .map((issue) => `- ${issue.message}`)
@@ -117,6 +123,28 @@ export function getOptionalStorageEnv(source: EnvSource = process.env) {
   return optionalStorageSchema.parse({
     SUPABASE_ATTACHMENTS_BUCKET: source.SUPABASE_ATTACHMENTS_BUCKET,
   });
+}
+
+export function getDemoEnv(source: EnvSource = process.env) {
+  const parsed = demoEnvSchema.parse({
+    NEXT_PUBLIC_DEMO_ENABLED: source.NEXT_PUBLIC_DEMO_ENABLED,
+    NEXT_PUBLIC_DEMO_EMAIL: source.NEXT_PUBLIC_DEMO_EMAIL,
+    DEMO_ORGANIZATION_SLUG: source.DEMO_ORGANIZATION_SLUG,
+  });
+
+  const enabled = parsed.NEXT_PUBLIC_DEMO_ENABLED === "true";
+
+  if (enabled && !parsed.NEXT_PUBLIC_DEMO_EMAIL) {
+    throw new Error(
+      "NEXT_PUBLIC_DEMO_EMAIL is required when demo mode is enabled.",
+    );
+  }
+
+  return {
+    enabled,
+    email: parsed.NEXT_PUBLIC_DEMO_EMAIL ?? null,
+    organizationSlug: parsed.DEMO_ORGANIZATION_SLUG ?? "dure-demo",
+  };
 }
 
 export function getLocalMvpEnvStatus(source: EnvSource = process.env) {

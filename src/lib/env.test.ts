@@ -1,4 +1,4 @@
-import { getLocalMvpEnvStatus, getServerEnv } from "@/lib/env";
+import { getDemoEnv, getLocalMvpEnvStatus, getServerEnv } from "@/lib/env";
 
 describe("env helpers", () => {
   const validEnv = {
@@ -71,6 +71,38 @@ describe("env helpers", () => {
       }),
     ).toThrowError(
       /NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required/,
+    );
+  });
+
+  it("treats demo mode as disabled by default", () => {
+    expect(getDemoEnv({})).toEqual({
+      enabled: false,
+      email: null,
+      organizationSlug: "dure-demo",
+    });
+  });
+
+  it("parses enabled public demo settings", () => {
+    expect(
+      getDemoEnv({
+        NEXT_PUBLIC_DEMO_ENABLED: "true",
+        NEXT_PUBLIC_DEMO_EMAIL: "demo@example.com",
+        DEMO_ORGANIZATION_SLUG: "public-demo",
+      }),
+    ).toEqual({
+      enabled: true,
+      email: "demo@example.com",
+      organizationSlug: "public-demo",
+    });
+  });
+
+  it("requires a demo email when demo mode is enabled", () => {
+    expect(() =>
+      getDemoEnv({
+        NEXT_PUBLIC_DEMO_ENABLED: "true",
+      }),
+    ).toThrowError(
+      /NEXT_PUBLIC_DEMO_EMAIL is required when demo mode is enabled/,
     );
   });
 });
