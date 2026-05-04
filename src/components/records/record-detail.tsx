@@ -271,7 +271,7 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
       <div className="mx-auto w-full max-w-[1500px] px-5 py-5 sm:px-8 lg:px-11">
         <header className="flex items-center">
           <Link
-            href="/records"
+            href={`/dashboard/status?sessionId=${record.id}`}
             className="inline-flex h-10 items-center gap-2 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-semibold shadow-panel transition hover:bg-[var(--color-surface-alt)]"
           >
             <Icon name="arrow" className="h-5 w-5" />

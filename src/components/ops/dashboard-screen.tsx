@@ -2,10 +2,12 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useActionState, useState } from "react";
 
 import {
   addExistingSessionParticipantAction,
+  assignSessionTeacherAction,
   createSessionParticipantAction,
   removeSessionParticipantAction,
 } from "@/server/actions/session-management";
@@ -410,6 +412,9 @@ function StatusSummaryView({
   dashboard: DashboardQueryData;
   sessionManagementRecords?: SessionManagementRecord[];
 }) {
+  const searchParams = useSearchParams();
+  const urlSessionId = searchParams.get("sessionId");
+  
   const [existingParticipantState, existingParticipantAction] = useActionState(
     addExistingSessionParticipantAction,
     initialState,
@@ -422,7 +427,12 @@ function StatusSummaryView({
     removeSessionParticipantAction,
     initialState,
   );
+  const [teacherAssignmentState, teacherAssignmentAction] = useActionState(
+    assignSessionTeacherAction,
+    initialState,
+  );
   const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState("");
   const isExampleMode = data.recentSessions.length === 0;
   const sessions =
     !isExampleMode
@@ -440,7 +450,12 @@ function StatusSummaryView({
             submittedAt: null,
           },
         ];
-  const [selectedSessionId, setSelectedSessionId] = useState(sessions[0].id);
+  
+  // URL 파라미터에서 sessionId가 있으면 해당 세션 선택, 없으면 첫 번째 세션 선택
+  const initialSessionId = urlSessionId && sessions.some(s => s.id === urlSessionId) 
+    ? urlSessionId 
+    : sessions[0].id;
+  const [selectedSessionId, setSelectedSessionId] = useState(initialSessionId);
   const selectedSession =
     sessions.find((session) => session.id === selectedSessionId) ?? sessions[0];
   const selectedManagement = sessionManagementRecords.find(
@@ -506,14 +521,16 @@ function StatusSummaryView({
       </p>
 
       <div className="mt-6 grid gap-9 lg:grid-cols-2 lg:gap-[41px]">
-        <section className="min-h-[248px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:min-h-[353px] sm:px-7">
+        <form action={teacherAssignmentAction} className="min-h-[248px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:min-h-[353px] sm:px-7">
           <h2 className="text-[23px] font-extrabold text-black sm:text-[25px]">
             강사 할당
           </h2>
+          <input type="hidden" name="sessionId" value={selectedSession.id} />
           <select
             aria-label="강사 선택"
-            value={selectedTeacherValue}
-            onChange={() => undefined}
+            name="teacherId"
+            value={selectedTeacherId || selectedManagement?.teacherId || selectedTeacherAssignment?.teacherId || ""}
+            onChange={(e) => setSelectedTeacherId(e.target.value)}
             className="mt-5 h-[52px] w-full rounded-[8px] border border-[#555555] bg-white px-4 text-[18px] font-semibold text-black outline-none sm:h-[63px] sm:text-[23px]"
           >
             {teacherOptions.length ? (
@@ -526,10 +543,11 @@ function StatusSummaryView({
               <option value="">예시선생</option>
             )}
           </select>
-          <button className="mt-5 h-[52px] w-full rounded-[25px] border border-[#fcce00] bg-[#ffec1d] text-[20px] font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.25)] sm:h-[63px] sm:text-[23px]">
+          <button type="submit" className="mt-5 h-[52px] w-full rounded-[25px] border border-[#fcce00] bg-[#ffec1d] text-[20px] font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.25)] sm:h-[63px] sm:text-[23px]">
             강사 저장
           </button>
-        </section>
+          <Feedback state={teacherAssignmentState} />
+        </form>
 
         <section className="min-h-[248px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:min-h-[353px] sm:px-7">
           <h2 className="text-[23px] font-extrabold text-black sm:text-[25px]">
