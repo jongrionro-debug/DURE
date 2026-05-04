@@ -167,6 +167,64 @@ describe("DashboardScreen", () => {
     ).toBeInTheDocument();
   });
 
+  it("derives session village, program, and teacher choices from the selected class", () => {
+    const { container } = render(
+      <DashboardScreen
+        data={{
+          ...baseData,
+          villages: [
+            { id: "village-1", name: "성내마을" },
+            { id: "village-2", name: "동해마을" },
+          ],
+          programs: [
+            { id: "program-1", name: "문해 사업" },
+            { id: "program-2", name: "건강 사업" },
+          ],
+          classes: [
+            ...baseData.classes,
+            {
+              id: "class-2",
+              name: "건강 체조 수업",
+              programId: "program-2",
+              villageId: "village-2",
+              programName: "건강 사업",
+              villageName: "동해마을",
+            },
+          ],
+          teacherAssignments: [
+            ...baseData.teacherAssignments,
+            {
+              classId: "class-2",
+              className: "건강 체조 수업",
+              teacherId: "teacher-2",
+              teacherName: "박강사",
+              teacherEmail: "teacher2@example.com",
+            },
+          ],
+        }}
+        dashboard={baseDashboard}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "세션 만들기" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "수업" }), {
+      target: { value: "class-2" },
+    });
+
+    expect(screen.queryByRole("combobox", { name: "마을" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("combobox", { name: "사업" })).not.toBeInTheDocument();
+    expect(screen.getByText("동해마을")).toBeInTheDocument();
+    expect(screen.getByText("건강 사업")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "강사" })).toHaveValue("teacher-2");
+    expect(screen.queryByText("김강사")).not.toBeInTheDocument();
+    expect(container.querySelector('input[name="villageId"]')).toHaveValue(
+      "village-2",
+    );
+    expect(container.querySelector('input[name="programId"]')).toHaveValue(
+      "program-2",
+    );
+  });
+
   it("renders the Figma status summary around selectable lesson blocks", () => {
     render(
       <DashboardScreen
@@ -190,7 +248,7 @@ describe("DashboardScreen", () => {
     expect(screen.getByText("아직 제출 전")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "기록 상세 보기" })).toHaveAttribute(
       "href",
-      "/dashboard/sessions/session-1",
+      "/records/session-1",
     );
     expect(screen.getByRole("heading", { name: "세션 참여자" })).toBeInTheDocument();
     expect(screen.getByText("김경원")).toBeInTheDocument();

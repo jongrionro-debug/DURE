@@ -224,11 +224,36 @@ function SessionCreateModal({
     createSessionAction,
     initialState,
   );
+  const selectableClasses = data.classes.filter(
+    (klass) => klass.programId && klass.villageId,
+  );
+  const initialClassId = selectableClasses[0]?.id ?? "";
+  const [selectedClassId, setSelectedClassId] = useState(initialClassId);
+  const [selectedTeacherId, setSelectedTeacherId] = useState(
+    () =>
+      data.teacherAssignments.find(
+        (assignment) => assignment.classId === initialClassId,
+      )?.teacherId ?? "",
+  );
+  const selectedClass =
+    selectableClasses.find((klass) => klass.id === selectedClassId) ?? null;
+  const selectedClassTeacherAssignments = data.teacherAssignments.filter(
+    (assignment) => assignment.classId === selectedClassId,
+  );
   const missingRequirements = [
     !data.villages.length ? "마을" : null,
     !data.programs.length ? "사업" : null,
-    !data.classes.length ? "수업" : null,
+    !selectableClasses.length ? "마을과 사업이 연결된 수업" : null,
   ].filter(Boolean);
+
+  function handleClassChange(classId: string) {
+    const nextTeacherId =
+      data.teacherAssignments.find((assignment) => assignment.classId === classId)
+        ?.teacherId ?? "";
+
+    setSelectedClassId(classId);
+    setSelectedTeacherId(nextTeacherId);
+  }
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-5 py-8">
@@ -267,41 +292,41 @@ function SessionCreateModal({
           </label>
           <label className="grid gap-2 text-sm font-semibold text-black">
             마을
-            <select
-              name="villageId"
-              className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
-            >
-              <option value="">마을 선택</option>
-              {data.villages.map((village) => (
-                <option key={village.id} value={village.id}>
-                  {village.name}
-                </option>
-              ))}
-            </select>
+            <span className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm text-[#555555]">
+              {selectedClass?.villageName ?? "수업을 먼저 선택해 주세요"}
+            </span>
           </label>
           <label className="grid gap-2 text-sm font-semibold text-black">
             사업
-            <select
-              name="programId"
-              className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
-            >
-              <option value="">사업 선택</option>
-              {data.programs.map((program) => (
-                <option key={program.id} value={program.id}>
-                  {program.name}
-                </option>
-              ))}
-            </select>
+            <span className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm text-[#555555]">
+              {selectedClass?.programName ?? "수업을 먼저 선택해 주세요"}
+            </span>
           </label>
+          <input
+            type="hidden"
+            name="villageId"
+            value={selectedClass?.villageId ?? ""}
+          />
+          <input
+            type="hidden"
+            name="programId"
+            value={selectedClass?.programId ?? ""}
+          />
           <label className="grid gap-2 text-sm font-semibold text-black">
             수업
             <select
               name="classId"
+              value={selectedClassId}
+              onChange={(event) => handleClassChange(event.target.value)}
               className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
             >
               <option value="">수업 선택</option>
               {data.classes.map((klass) => (
-                <option key={klass.id} value={klass.id}>
+                <option
+                  key={klass.id}
+                  value={klass.id}
+                  disabled={!klass.programId || !klass.villageId}
+                >
                   {klass.name} · {klass.programName ?? "사업 미연결"} ·{" "}
                   {klass.villageName ?? "마을 미연결"}
                 </option>
@@ -312,10 +337,12 @@ function SessionCreateModal({
             강사
             <select
               name="teacherId"
+              value={selectedTeacherId}
+              onChange={(event) => setSelectedTeacherId(event.target.value)}
               className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
             >
               <option value="">강사 나중에 할당</option>
-              {data.teacherAssignments.map((assignment) => (
+              {selectedClassTeacherAssignments.map((assignment) => (
                 <option
                   key={`${assignment.classId}-${assignment.teacherId}`}
                   value={assignment.teacherId}
@@ -518,7 +545,7 @@ function StatusSummaryView({
               : "5월 2일 오전 01:21"}
           </p>
           <Link
-            href={`/dashboard/sessions/${selectedSession.id}`}
+            href={`/records/${selectedSession.id}`}
             className="mt-5 flex h-[52px] w-full items-center justify-center rounded-[25px] border border-[#555555] bg-white text-[20px] font-extrabold text-black sm:h-[63px] sm:text-[23px]"
           >
             기록 상세 보기
