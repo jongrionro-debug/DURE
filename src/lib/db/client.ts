@@ -1,25 +1,27 @@
-import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 
 import { getServerEnv } from "@/lib/env";
 import * as schema from "@/lib/db/schema";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __durePool: Pool | undefined;
+  var __dureClient: postgres.Sql | undefined;
 }
 
-function getPool() {
-  if (!globalThis.__durePool) {
+function getClient() {
+  if (!globalThis.__dureClient) {
     const env = getServerEnv();
-    globalThis.__durePool = new Pool({
-      connectionString: env.DATABASE_URL,
+    globalThis.__dureClient = postgres(env.DATABASE_URL, {
+      max: 1,
+      idle_timeout: 20,
+      connect_timeout: 10,
     });
   }
 
-  return globalThis.__durePool;
+  return globalThis.__dureClient;
 }
 
 export function getDb() {
-  return drizzle(getPool(), { schema });
+  return drizzle(getClient(), { schema });
 }
