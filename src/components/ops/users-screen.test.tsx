@@ -80,11 +80,9 @@ describe("UsersScreen", () => {
     expect(within(header).queryByLabelText("알림")).not.toBeInTheDocument();
     expect(within(header).queryByText("관리자")).not.toBeInTheDocument();
 
-    expect(
-      screen.getByRole("heading", { name: "사용자 관리" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "사용자·권한" })).toBeInTheDocument();
     expect(screen.getByText("전체 멤버")).toBeInTheDocument();
-    expect(screen.getByText("배정된 수업")).toBeInTheDocument();
+    expect(screen.getByText("배정된 프로그램")).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "멤버" })).toHaveAttribute(
       "aria-selected",
       "true",
@@ -135,7 +133,7 @@ describe("UsersScreen", () => {
     expect(screen.getByRole("button", { name: "접근 승인" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "역할 변경" })).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "초대 보내기" }),
+      screen.getByRole("button", { name: "초대 토큰 발급" }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "배정하기" })).toBeInTheDocument();
     expect(screen.getAllByText("승인 대기").length).toBeGreaterThan(0);

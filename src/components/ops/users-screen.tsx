@@ -61,6 +61,12 @@ type IconName =
   | "users";
 
 const initialState: ActionState = {};
+const panelClassName =
+  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]";
+const inputClassName =
+  "h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(81,123,246,0.15)]";
+const primaryButtonClassName =
+  "inline-flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white";
 
 const roleLabels: Record<MemberRole, string> = {
   platform_admin: "플랫폼 관리자",
@@ -200,7 +206,7 @@ function CopyInviteTokenButton({ token }: { token: string }) {
     <button
       type="button"
       onClick={() => navigator.clipboard.writeText(token)}
-      className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-alt)]"
+      className="inline-flex items-center gap-2 rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)] transition hover:bg-[var(--color-surface-alt)]"
     >
       <Icon name="copy" className="h-4 w-4" />
       토큰 복사
@@ -220,7 +226,7 @@ function MetricCard({
   tone?: "green" | "yellow";
 }) {
   return (
-    <section className="flex min-h-[96px] items-center gap-4 rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 shadow-panel">
+    <section className="flex min-h-[96px] items-center gap-4 rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
       <span
         className={`grid h-12 w-12 shrink-0 place-items-center rounded-full ${
           tone === "yellow"
@@ -327,12 +333,12 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
   }, [data.members, memberFilter, query]);
 
   return (
-    <main className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-primary)]">
-      <div className="mx-auto w-full max-w-[1500px] px-5 py-5 sm:px-8 lg:px-11">
+    <main className="text-[var(--color-text-primary)]">
+      <div className="w-full">
         <header className="flex items-center">
           <Link
             href="/dashboard"
-            className="inline-flex h-10 items-center gap-2 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-semibold shadow-panel transition hover:bg-[var(--color-surface-alt)]"
+            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-semibold transition hover:bg-[var(--color-surface-alt)]"
           >
             <span aria-hidden="true">←</span>
             대시보드
@@ -340,11 +346,11 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
         </header>
 
         <section className="mt-12">
-          <h1 className="text-4xl font-bold tracking-[-0.04em] sm:text-5xl">
-            사용자 관리
+          <h1 className="text-[22px] font-extrabold leading-tight">
+            사용자·권한
           </h1>
-          <p className="mt-4 text-base font-medium text-[var(--color-text-secondary)]">
-            초대, 승인, 역할 변경, 수업 배정을 한 화면에서 관리합니다.
+          <p className="mt-2 text-[13px] font-medium text-[var(--color-text-secondary)]">
+            초대, 승인, 역할 변경, 프로그램 배정을 한 화면에서 관리합니다.
           </p>
         </section>
 
@@ -359,13 +365,13 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
           <MetricCard icon="person" label="강사" value={teachers.length} />
           <MetricCard
             icon="book"
-            label="배정된 수업"
+            label="배정된 프로그램"
             value={data.assignments.length}
           />
         </section>
 
         <div className="mt-7 grid gap-7 xl:grid-cols-[minmax(0,1fr)_365px]">
-          <section className="overflow-hidden rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-panel">
+          <section className={`overflow-hidden ${panelClassName}`}>
             <div
               role="tablist"
               aria-label="사용자 관리 메뉴"
@@ -528,17 +534,14 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
           </section>
 
           <aside className="space-y-4">
-            <section
-              id="invite-panel"
-              className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel"
-            >
+            <section id="invite-panel" className={panelClassName}>
               <div className="flex items-start gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[var(--color-accent-surface)] text-[#B17800]">
                   <Icon name="mail" className="h-6 w-6" />
                 </span>
                 <div>
                   <h2 className="text-xl font-bold tracking-[-0.03em]">
-                    초대 보내기
+                    초대 토큰 발급
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
                     초대 토큰을 만들고 수락 상태를 추적합니다.
@@ -573,9 +576,9 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
                     </span>
                   </FieldShell>
                 </label>
-                <button className="inline-flex h-10 items-center justify-center gap-2 rounded-[7px] bg-[var(--color-accent)] text-sm font-bold text-[var(--color-accent-ink)] shadow-[0_8px_18px_rgba(204,166,0,0.18)] transition hover:brightness-[0.98]">
+                <button className={primaryButtonClassName}>
                   <Icon name="send" className="h-5 w-5" />
-                  초대 보내기
+                  초대 토큰 발급
                 </button>
               </form>
               <Feedback state={inviteState} />
@@ -610,17 +613,17 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
               </div>
             </section>
 
-            <section className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
+            <section className={panelClassName}>
               <div className="flex items-start gap-4">
                 <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[#DFEAD4] text-[#4F7C32]">
                   <Icon name="book" className="h-6 w-6" />
                 </span>
                 <div>
                   <h2 className="text-xl font-bold tracking-[-0.03em]">
-                    강사 수업 배정
+                    강사 프로그램 배정
                   </h2>
                   <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
-                    강사에게 수업을 배정하고 관리합니다.
+                    강사에게 프로그램을 배정하고 관리합니다.
                   </p>
                 </div>
               </div>
@@ -646,13 +649,13 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
                   </FieldShell>
                 </label>
                 <label className="grid gap-2 text-sm font-bold">
-                  수업 선택
+                  프로그램
                   <FieldShell icon="book">
                     <select
                       name="classId"
-                      className="h-10 w-full appearance-none rounded-[7px] border border-[var(--color-border)] bg-[var(--color-surface)] pl-11 pr-10 text-sm font-medium outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-surface)]"
+                      className={inputClassName}
                     >
-                      <option value="">수업을 선택하세요</option>
+                      <option value="">프로그램을 선택하세요</option>
                       {data.classes.map((klass) => (
                         <option key={klass.id} value={klass.id}>
                           {klass.name}
@@ -664,7 +667,7 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
                     </span>
                   </FieldShell>
                 </label>
-                <button className="inline-flex h-10 items-center justify-center gap-2 rounded-[7px] bg-[var(--color-accent)] text-sm font-bold text-[var(--color-accent-ink)] shadow-[0_8px_18px_rgba(204,166,0,0.18)] transition hover:brightness-[0.98]">
+                <button className={primaryButtonClassName}>
                   <Icon name="check" className="h-5 w-5" />
                   배정하기
                 </button>
