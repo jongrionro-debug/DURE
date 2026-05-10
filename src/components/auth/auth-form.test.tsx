@@ -40,6 +40,19 @@ describe("AuthForm demo mode", () => {
     expect(screen.getByLabelText("E-mail")).toHaveValue("");
   });
 
+  it("uses the console shell language for account access", () => {
+    render(<AuthForm mode="login" />);
+
+    expect(screen.getAllByText("운영 시스템").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("계정 접근").length).toBeGreaterThan(0);
+    const signupLinks = screen.getAllByRole("link", { name: "회원가입" });
+    expect(signupLinks.length).toBeGreaterThan(0);
+    expect(signupLinks.every((link) => link.getAttribute("href") === "/signup")).toBe(
+      true,
+    );
+    expect(screen.getByText("대시보드와 같은 운영 콘솔 환경으로 진입합니다.")).toBeInTheDocument();
+  });
+
   it("prefills the demo email on /login?demo=1 when demo mode is enabled", () => {
     process.env.NEXT_PUBLIC_DEMO_ENABLED = "true";
     searchParams = new URLSearchParams("demo=1");

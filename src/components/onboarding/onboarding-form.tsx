@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
 import { LogoutButton } from "@/components/auth/logout-button";
+import { PreDashboardShell } from "@/components/ui/pre-dashboard-shell";
 import {
   type OnboardingActionState,
   acceptInviteOnboardingAction,
@@ -63,47 +64,88 @@ export function OnboardingForm({ email }: { email?: string | null }) {
   );
 
   return (
-    <main className="min-h-screen bg-[var(--color-background)] px-5 py-6 text-[var(--color-text-primary)] sm:px-7">
-      <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-5">
-        <header className={panelClassName}>
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              <div className="flex size-[30px] shrink-0 items-center justify-center rounded-[10px] bg-[var(--color-accent)] text-[13px] font-extrabold text-white">
-                D
-              </div>
-              <div>
-                <p className="text-[13px] font-extrabold leading-tight text-[var(--color-text-primary)]">
-                  DURE
-                </p>
-                <p className="text-[10px] leading-tight text-[var(--color-text-secondary)]">
-                  운영 시스템
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-col items-start gap-2 sm:items-end">
-              <p className="max-w-full truncate text-[12px] font-bold text-[var(--color-text-primary)]">
-                {email ?? "로그인 사용자"}
+    <PreDashboardShell
+      sidebarLabel="운영자 온보딩"
+      navItems={[
+        { label: "기관 생성", active: true },
+        { label: "첫 마을 등록" },
+        { label: "대시보드 진입" },
+      ]}
+      sidebarContent={
+        <div className="px-2">
+          <p className="text-[11px] font-bold leading-5 text-white">
+            온보딩 단계
+          </p>
+          <div className="mt-3 grid gap-2">
+            {["기관 생성", "첫 마을 등록", "대시보드 진입"].map(
+              (step, index) => (
+                <div
+                  key={step}
+                  className="flex items-center gap-2 text-[11px] font-medium text-[var(--color-sidebar-ink)]"
+                >
+                  <span className="flex size-5 items-center justify-center rounded-full bg-[rgba(255,255,255,0.12)] text-[10px] font-bold text-white">
+                    {index + 1}
+                  </span>
+                  {step}
+                </div>
+              ),
+            )}
+          </div>
+        </div>
+      }
+      footer={
+        <div className="px-2">
+          <div className="flex items-center gap-2">
+            <div className="size-[26px] rounded-full bg-[rgba(255,255,255,0.16)]" />
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold text-white">
+                로그인 사용자
               </p>
-              <span className="inline-flex rounded-full bg-[var(--color-accent-surface)] px-3 py-1 text-[10px] font-bold text-[var(--color-accent)]">
-                운영자 온보딩
-              </span>
-              <LogoutButton email={null} tone="accent" variant="compact" />
+              <p className="truncate text-[10px] text-[var(--color-sidebar-ink)]">
+                {email ?? "이메일 없음"}
+              </p>
             </div>
           </div>
-        </header>
+          <div className="mt-3">
+            <LogoutButton email={null} tone="accent" variant="compact" />
+          </div>
+        </div>
+      }
+    >
+      <header className={panelClassName}>
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <p className="text-[11px] font-bold text-[var(--color-text-secondary)]">
+              운영자 온보딩
+            </p>
+            <h1 className="mt-2 text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
+              운영 시작 설정
+            </h1>
+            <p className="mt-2 max-w-xl text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
+              기관과 첫 마을을 등록하면 대시보드에서 수업 일정을 만들 수 있습니다.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-start gap-2 sm:items-end md:hidden">
+            <p className="max-w-full truncate text-[12px] font-bold text-[var(--color-text-primary)]">
+              {email ?? "로그인 사용자"}
+            </p>
+            <LogoutButton email={null} tone="accent" variant="compact" />
+          </div>
+        </div>
+      </header>
 
         <section className={panelClassName}>
-          <p className="text-[11px] font-bold text-[var(--color-text-secondary)]">
-            처음 설정
-          </p>
           <div className="mt-2 grid gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(360px,1.1fr)]">
             <div>
-              <h1 className="text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
-                운영 시작 설정
-              </h1>
+              <p className="text-[11px] font-bold text-[var(--color-text-secondary)]">
+                온보딩 단계
+              </p>
+              <h2 className="mt-2 text-[16px] font-bold text-[var(--color-text-primary)]">
+                대시보드 진입 전 필요한 기본값
+              </h2>
               <p className="mt-2 max-w-xl text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
-                기관과 첫 마을을 등록하면 대시보드에서 수업 일정을 만들 수 있습니다.
+                기관은 사용자와 권한의 기준이 되고, 첫 마을은 수업 일정과 참여자 명단의 시작점이 됩니다.
               </p>
               <div className="mt-5 grid gap-3">
                 {["기관 생성", "첫 마을 등록", "대시보드 진입"].map(
@@ -220,7 +262,6 @@ export function OnboardingForm({ email }: { email?: string | null }) {
             </div>
           </div>
         </section>
-      </div>
-    </main>
+    </PreDashboardShell>
   );
 }

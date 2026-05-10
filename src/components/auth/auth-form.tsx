@@ -1,10 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import { startTransition, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-import { BrandMark } from "@/components/ui/brand-mark";
+import { PreDashboardShell } from "@/components/ui/pre-dashboard-shell";
 import { getSupabaseBrowserClient } from "@/lib/auth/supabase-browser";
 import { getDemoEnv } from "@/lib/env";
 
@@ -28,6 +27,14 @@ const modeCopy = {
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const passwordPattern =
   /^(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+const panelClassName =
+  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]";
+const inputClassName =
+  "h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none transition focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(81,123,246,0.15)]";
+const primaryButtonClassName =
+  "rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50";
+const secondaryLinkClassName =
+  "rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)] transition-colors hover:border-[var(--color-accent)]";
 
 export function AuthForm({ mode }: AuthFormProps) {
   const copy = modeCopy[mode];
@@ -48,6 +55,15 @@ export function AuthForm({ mode }: AuthFormProps) {
     mode === "signup" && password.length > 0 && !passwordPattern.test(password);
   const alternateHref = mode === "login" ? "/signup" : "/login";
   const alternateLabel = mode === "login" ? "회원가입" : "로그인";
+  const title = mode === "login" ? "로그인" : "회원가입";
+  const description =
+    mode === "login"
+      ? "대시보드와 같은 운영 콘솔 환경으로 진입합니다."
+      : "계정을 만든 뒤 기관 생성 온보딩으로 이어집니다.";
+  const navItems = [
+    { href: "/login", label: "로그인", active: mode === "login" },
+    { href: "/signup", label: "회원가입", active: mode === "signup" },
+  ];
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -92,70 +108,62 @@ export function AuthForm({ mode }: AuthFormProps) {
   }
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-[#f6f1e8] px-4 py-8 text-[#111111]">
-      <section className="flex min-h-[min(88vh,940px)] w-full max-w-[1347px] flex-col rounded-[34px] bg-[#fffdf8] px-5 py-12 shadow-[0_0_16px_rgba(255,255,255,0.6)] sm:rounded-[50px] sm:px-10 lg:px-[clamp(5rem,14vw,12.5rem)]">
-        <header className="flex items-center justify-center gap-4">
-          <BrandMark className="h-[48px] w-[52px]" priority />
-
-          <h1 className="flex items-baseline gap-2 whitespace-nowrap text-[42px] font-black leading-none">
-            <span
-              style={{
-                fontFamily:
-                  "'Gemunu Libre', Impact, 'Arial Black', var(--font-ui), sans-serif",
-              }}
-            >
-              DURE
-            </span>
-            <span className="text-[24px] font-black">: 두레</span>
-          </h1>
-        </header>
+    <PreDashboardShell
+      sidebarLabel="계정 접근"
+      navItems={navItems}
+      sidebarContent={
+        <div className="px-2">
+          <p className="text-[11px] font-bold leading-5 text-white">
+            운영 콘솔 진입
+          </p>
+          <p className="mt-1 text-[11px] font-medium leading-5 text-[var(--color-sidebar-ink)]">
+            계정 확인 후 온보딩 또는 대시보드로 이동합니다.
+          </p>
+        </div>
+      }
+    >
+      <section className={panelClassName}>
+        <div className="mx-auto w-full max-w-[360px]">
 
         <form
-          className="mx-auto mt-20 flex w-full max-w-[947px] flex-col"
+            className="rounded-[14px] border border-[var(--color-border)] bg-white px-4 py-4"
           onSubmit={handleSubmit}
           noValidate
         >
-          <label className="flex flex-col">
-            <span
-              className="text-[26px] font-normal leading-none text-black"
-              style={{
-                fontFamily:
-                  "'Gemunu Libre', var(--font-ui), 'Noto Sans KR', sans-serif",
-              }}
-            >
+            <div>
+              <h2 className="text-[16px] font-bold text-[var(--color-text-primary)]">
+                {title}
+              </h2>
+              <p className="mt-1 text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
+                이메일과 비밀번호를 입력해주세요.
+              </p>
+            </div>
+
+            <label className="mt-4 grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
               E-mail
-            </span>
             <input
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className="mt-4 h-16 rounded-[30px] border border-[#555555] bg-[#fffdf8] px-7 text-[20px] text-black outline-none transition focus:border-black focus:ring-2 focus:ring-[#ffec1d]"
-              placeholder="example1"
+                className={inputClassName}
+                placeholder="dure@example.com"
               autoComplete="email"
               required
             />
-            <span className="mt-2 min-h-6 text-[16px] leading-6 text-red-600">
+              <span className="min-h-5 text-[12px] font-medium leading-5 text-[var(--color-danger)]">
               {hasEmailError ? "dure@example.com의 형식을 지켜주세요" : ""}
             </span>
           </label>
 
-          <label className="mt-5 flex flex-col">
-            <span
-              className="text-[26px] font-normal leading-none text-black"
-              style={{
-                fontFamily:
-                  "'Gemunu Libre', var(--font-ui), 'Noto Sans KR', sans-serif",
-              }}
-            >
+            <label className="mt-1 grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
               Password
-            </span>
-            <span className="relative mt-4">
+              <span className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                className="h-16 w-full rounded-[30px] border border-[#555555] bg-[#fffdf8] px-7 pr-20 text-[20px] text-black outline-none transition focus:border-black focus:ring-2 focus:ring-[#ffec1d]"
-                placeholder="******"
+                  className={`${inputClassName} w-full pr-14`}
+                  placeholder="비밀번호"
                 autoComplete={
                   mode === "login" ? "current-password" : "new-password"
                 }
@@ -164,21 +172,15 @@ export function AuthForm({ mode }: AuthFormProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword((current) => !current)}
-                className="absolute right-6 top-1/2 flex size-10 -translate-y-1/2 items-center justify-center rounded-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+                  className="absolute right-2 top-1/2 flex h-7 -translate-y-1/2 items-center rounded-[8px] px-2 text-[11px] font-bold text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-surface-alt)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]"
                 aria-label={
                   showPassword ? "비밀번호 숨기기" : "비밀번호 보이기"
                 }
               >
-                <Image
-                  src="/figma-assets/login-password-eye.png"
-                  alt=""
-                  width={39}
-                  height={39}
-                  className="size-[32px]"
-                />
+                  {showPassword ? "숨김" : "보기"}
               </button>
             </span>
-            <span className="mt-2 min-h-6 text-[16px] leading-6 text-red-600">
+              <span className="min-h-5 text-[12px] font-medium leading-5 text-[var(--color-danger)]">
               {hasPasswordError
                 ? "알파벳 소문자, 숫자, 특수문자를 모두 포함해주세요."
                 : ""}
@@ -186,38 +188,37 @@ export function AuthForm({ mode }: AuthFormProps) {
           </label>
 
           {mode === "login" ? (
-            <label className="mt-5 flex w-fit cursor-pointer items-center gap-2 text-[16px] font-medium text-[#555555]">
+              <label className="mt-2 flex w-fit cursor-pointer items-center gap-2 text-[13px] font-medium text-[var(--color-text-secondary)]">
               <input
                 type="checkbox"
                 checked={rememberLogin}
                 onChange={(event) => setRememberLogin(event.target.checked)}
                 className="sr-only"
               />
-              <span className="relative flex size-8 items-center justify-center rounded-full border border-transparent">
+                <span
+                  className={`flex size-5 items-center justify-center rounded-[6px] border text-[12px] font-extrabold ${
+                    rememberLogin
+                      ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
+                      : "border-[var(--color-border)] bg-white text-transparent"
+                  }`}
+                  aria-hidden="true"
+                >
                 {rememberLogin ? (
-                  <Image
-                    src="/figma-assets/login-remember-check.png"
-                    alt=""
-                    width={32}
-                    height={32}
-                    className="size-8"
-                  />
-                ) : (
-                  <span className="size-6 rounded-full border-2 border-[#555555]" />
-                )}
+                    "✓"
+                  ) : null}
               </span>
               <span>로그인 상태 유지</span>
             </label>
           ) : null}
 
           {feedback ? (
-            <p className="mt-5 rounded-[18px] bg-[#f6f1e8] px-5 py-3 text-[15px] leading-6 text-[#555555]">
+              <p className="mt-3 rounded-[10px] bg-[var(--color-surface-alt)] px-3 py-2 text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
               {feedback}
             </p>
           ) : null}
 
           {isDemoLogin ? (
-            <p className="mt-5 rounded-[18px] bg-[#fff7b8] px-5 py-3 text-[15px] leading-6 text-[#555555]">
+              <p className="mt-3 rounded-[10px] bg-[var(--color-accent-surface)] px-3 py-2 text-[13px] font-medium leading-6 text-[var(--color-accent)]">
               데모 계정으로 제품 흐름을 바로 확인할 수 있습니다.
             </p>
           ) : null}
@@ -225,26 +226,25 @@ export function AuthForm({ mode }: AuthFormProps) {
           <button
             type="submit"
             disabled={isPending}
-            className="mt-8 h-16 rounded-[30px] bg-[#ffec1d] text-[20px] font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.25)] transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
+              className={`mt-4 w-full ${primaryButtonClassName}`}
           >
             {isPending ? "진행 중..." : copy.submitLabel}
           </button>
 
-          <nav className="mt-6 flex items-center justify-center gap-2 text-center text-[16px] font-medium text-[#555555]">
-            <button type="button" className="transition hover:text-black">
+            <nav className="mt-4 flex flex-wrap items-center justify-center gap-2 text-center">
+              <button type="button" className={secondaryLinkClassName}>
               {copy.passwordHelp}
             </button>
-            <span>|</span>
-            <button type="button" className="transition hover:text-black">
+              <button type="button" className={secondaryLinkClassName}>
               {copy.accountHelp}
             </button>
-            <span>|</span>
-            <a href={alternateHref} className="transition hover:text-black">
+              <a href={alternateHref} className={secondaryLinkClassName}>
               {alternateLabel}
             </a>
           </nav>
         </form>
+        </div>
       </section>
-    </main>
+    </PreDashboardShell>
   );
 }

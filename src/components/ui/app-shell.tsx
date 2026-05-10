@@ -33,7 +33,7 @@ export function AppShell({ role, email, children }: AppShellProps) {
             <p className="text-[13px] font-extrabold leading-tight text-white">
               DURE
             </p>
-            <p className="text-[10px] leading-tight text-[var(--color-sidebar-ink)]">
+            <p className="text-[10px] leading-tight text-[#d4d4d8]">
               운영 시스템
             </p>
           </div>
@@ -48,7 +48,7 @@ export function AppShell({ role, email, children }: AppShellProps) {
             <Link
               key={`${item.href}-${item.label}`}
               href={item.href}
-              className="flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium text-[var(--color-sidebar-ink)] transition-colors hover:bg-[rgba(142,144,150,0.12)]"
+              className="flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium text-[#d4d4d8] transition-colors hover:bg-[rgba(142,144,150,0.12)] hover:text-white"
             >
               <span className="w-5 text-center text-[18px]" aria-hidden="true">
                 {item.icon}
@@ -65,7 +65,7 @@ export function AppShell({ role, email, children }: AppShellProps) {
               <p className="truncate text-[11px] font-bold text-white">
                 {role === "teacher" ? "강사" : "운영자"}
               </p>
-              <p className="truncate text-[10px] text-[var(--color-sidebar-ink)]">
+              <p className="truncate text-[10px] text-[#d4d4d8]">
                 {email ?? "로그인 사용자"}
               </p>
             </div>

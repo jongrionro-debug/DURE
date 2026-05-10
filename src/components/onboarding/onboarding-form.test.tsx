@@ -27,7 +27,9 @@ describe("OnboardingForm", () => {
   it("uses the console onboarding language and primary setup actions", () => {
     render(<OnboardingForm email="admin@example.com" />);
 
-    expect(screen.getByText("DURE")).toBeInTheDocument();
+    expect(screen.getAllByText("DURE").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("운영자 온보딩").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("온보딩 단계").length).toBeGreaterThan(0);
     expect(screen.getByText("운영 시작 설정")).toBeInTheDocument();
     expect(
       screen.getByText("기관과 첫 마을을 등록하면 대시보드에서 수업 일정을 만들 수 있습니다."),

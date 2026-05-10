@@ -1,0 +1,48 @@
+- main [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - generic [ref=e8]: D
+        - generic [ref=e9]:
+          - paragraph [ref=e10]: DURE
+          - paragraph [ref=e11]: 운영 시스템
+      - generic [ref=e12]: 계정 접근
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - paragraph [ref=e16]: 계정 접근
+        - heading "DURE 운영 시스템 로그인" [level=1] [ref=e17]
+        - paragraph [ref=e18]: 대시보드와 같은 운영 콘솔 환경으로 진입합니다.
+        - generic [ref=e19]:
+          - generic [ref=e20]:
+            - generic [ref=e21]: "1"
+            - generic [ref=e22]: 계정 확인
+          - generic [ref=e23]:
+            - generic [ref=e24]: "2"
+            - generic [ref=e25]: 기관 온보딩
+          - generic [ref=e26]:
+            - generic [ref=e27]: "3"
+            - generic [ref=e28]: 대시보드 진입
+      - generic [ref=e29]:
+        - generic [ref=e30]:
+          - heading "로그인" [level=2] [ref=e31]
+          - paragraph [ref=e32]: 이메일과 비밀번호를 입력해주세요.
+        - generic [ref=e33]:
+          - text: E-mail
+          - textbox "E-mail" [ref=e34]:
+            - /placeholder: dure@example.com
+        - generic [ref=e36]:
+          - text: Password
+          - generic [ref=e37]:
+            - textbox "Password 비밀번호 보이기" [ref=e38]:
+              - /placeholder: 비밀번호
+            - button "비밀번호 보이기" [ref=e39]: 보기
+        - generic [ref=e41] [cursor=pointer]:
+          - checkbox "로그인 상태 유지" [checked] [ref=e42]
+          - generic [ref=e43]: ✓
+          - generic [ref=e44]: 로그인 상태 유지
+        - button "로그인" [ref=e45]
+        - navigation [ref=e46]:
+          - button "비밀번호 찾기" [ref=e47]
+          - button "아이디 찾기" [ref=e48]
+          - link "회원가입" [ref=e49] [cursor=pointer]:
+            - /url: /signup

@@ -1,0 +1,97 @@
+<h2>인증/온보딩 리디자인 방향</h2>
+<p class="subtitle">대시보드의 운영 콘솔 시스템(#EBEBEB 작업 영역, 흰색 패널, #517BF6 액션, 13px 중심 UI)을 기준으로 맞추는 안입니다.</p>
+
+<div class="cards">
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:320px;background:#ebebeb;padding:20px;font-family:'Noto Sans KR',sans-serif;color:#1e212f">
+        <div style="display:flex;height:100%;border:1px solid #d4d4d4;background:white;border-radius:18px;overflow:hidden">
+          <div style="width:220px;background:#2a2d3e;padding:18px 14px;color:white">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:30px;height:30px;border-radius:10px;background:#517bf6;display:grid;place-items:center;font-weight:800">D</div>
+              <div><div style="font-size:13px;font-weight:800">DURE</div><div style="font-size:10px;color:#8e9096">운영 시스템</div></div>
+            </div>
+            <div style="margin-top:22px;border-radius:14px;background:rgba(81,123,246,.16);padding:9px 12px;font-size:13px;font-weight:700">로그인</div>
+            <div style="margin-top:6px;border-radius:14px;padding:9px 12px;font-size:13px;color:#8e9096">회원가입</div>
+          </div>
+          <div style="flex:1;padding:24px 28px">
+            <div style="font-size:22px;font-weight:800">DURE 운영 시스템 로그인</div>
+            <div style="margin-top:8px;font-size:13px;color:#6b6f7a;line-height:1.5">운영자와 강사가 같은 콘솔 경험으로 진입합니다.</div>
+            <div style="margin-top:24px;max-width:420px;border:1px solid #d4d4d4;border-radius:18px;padding:18px;background:white">
+              <div style="font-size:12px;font-weight:700">이메일</div>
+              <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px;background:white"></div>
+              <div style="margin-top:12px;font-size:12px;font-weight:700">비밀번호</div>
+              <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px;background:white"></div>
+              <div style="height:36px;margin-top:18px;border-radius:10px;background:#517bf6;color:white;display:grid;place-items:center;font-size:13px;font-weight:800">로그인</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Auth도 앱 셸처럼</h3>
+      <p>로그인/회원가입에 축소 사이드바를 둬서 인증 전후 전환이 가장 자연스럽습니다. 단, 로그인 화면이 조금 무거워집니다.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:320px;background:#ebebeb;padding:24px;font-family:'Noto Sans KR',sans-serif;color:#1e212f">
+        <div style="display:flex;align-items:center;justify-content:space-between;border:1px solid #d4d4d4;border-radius:18px;background:white;padding:16px 18px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:30px;height:30px;border-radius:10px;background:#517bf6;display:grid;place-items:center;color:white;font-weight:800">D</div>
+            <div><div style="font-size:13px;font-weight:800">DURE</div><div style="font-size:10px;color:#6b6f7a">운영 시스템</div></div>
+          </div>
+          <div style="font-size:10px;font-weight:800;color:#517bf6;background:rgba(81,123,246,.1);border-radius:999px;padding:6px 10px">계정 접근</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 420px;gap:18px;margin-top:18px">
+          <div style="border:1px solid #d4d4d4;border-radius:18px;background:white;padding:22px">
+            <div style="font-size:22px;font-weight:800">운영 콘솔로 이어지는 계정 접근</div>
+            <div style="margin-top:10px;font-size:13px;color:#6b6f7a;line-height:1.6">대시보드와 같은 패널, 보더, 입력 스타일을 사용합니다.</div>
+            <div style="display:grid;gap:10px;margin-top:22px">
+              <div style="border-radius:10px;background:#e0e0e0;padding:10px 12px;font-size:13px;font-weight:700">1. 계정 확인</div>
+              <div style="border-radius:10px;background:#e0e0e0;padding:10px 12px;font-size:13px;font-weight:700">2. 기관 온보딩</div>
+              <div style="border-radius:10px;background:#e0e0e0;padding:10px 12px;font-size:13px;font-weight:700">3. 대시보드 진입</div>
+            </div>
+          </div>
+          <div style="border:1px solid #d4d4d4;border-radius:18px;background:white;padding:18px">
+            <div style="font-size:16px;font-weight:800">로그인</div>
+            <div style="margin-top:14px;font-size:12px;font-weight:700">이메일</div>
+            <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px"></div>
+            <div style="margin-top:12px;font-size:12px;font-weight:700">비밀번호</div>
+            <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px"></div>
+            <div style="height:36px;margin-top:18px;border-radius:10px;background:#517bf6;color:white;display:grid;place-items:center;font-size:13px;font-weight:800">로그인</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. 게스트 콘솔 랜딩</h3>
+      <p>사이드바 없이도 대시보드의 작업 영역과 패널 구조를 유지합니다. 로그인/회원가입/온보딩 모두 같은 프레임으로 묶기 좋습니다.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="height:320px;background:#ebebeb;padding:24px;font-family:'Noto Sans KR',sans-serif;color:#1e212f">
+        <div style="max-width:520px;margin:0 auto;border:1px solid #d4d4d4;border-radius:18px;background:white;padding:22px">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:30px;height:30px;border-radius:10px;background:#517bf6;display:grid;place-items:center;color:white;font-weight:800">D</div>
+            <div><div style="font-size:13px;font-weight:800">DURE</div><div style="font-size:10px;color:#6b6f7a">운영 시스템</div></div>
+          </div>
+          <div style="margin-top:26px;font-size:22px;font-weight:800">로그인</div>
+          <div style="margin-top:8px;font-size:13px;color:#6b6f7a">가장 단순한 단일 카드 화면입니다.</div>
+          <div style="margin-top:18px;font-size:12px;font-weight:700">이메일</div>
+          <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px"></div>
+          <div style="margin-top:12px;font-size:12px;font-weight:700">비밀번호</div>
+          <div style="height:36px;margin-top:6px;border:1px solid #d4d4d4;border-radius:10px"></div>
+          <div style="height:36px;margin-top:18px;border-radius:10px;background:#517bf6;color:white;display:grid;place-items:center;font-size:13px;font-weight:800">로그인</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. 최소 단일 패널</h3>
+      <p>변경 범위가 가장 작고 깔끔하지만, 온보딩의 설명/단계 흐름과 회원가입 전환을 담기엔 확장성이 낮습니다.</p>
+    </div>
+  </div>
+</div>
