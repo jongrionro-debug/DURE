@@ -21,6 +21,7 @@ describe("RecordDetailScreen", () => {
       <RecordDetailScreen
         record={{
           id: "session-1",
+          organizationId: "org-1",
           sessionDate: "2026-04-28",
           className: "기초 문해 수업",
           villageName: "성내마을",
@@ -61,10 +62,11 @@ describe("RecordDetailScreen", () => {
 
     const backLink = screen.getByRole("link", { name: "기록 목록" });
     const sessionManagementLink = screen.getByRole("link", {
-      name: "세션 관리",
+      name: "수업 일정 관리",
     });
 
     expect(backLink).toHaveAttribute("href", "/records");
+    expect(screen.getByRole("heading", { name: "기록 상세" })).toBeInTheDocument();
     expect(sessionManagementLink).toHaveAttribute(
       "href",
       "/dashboard/sessions/session-1",
@@ -72,7 +74,7 @@ describe("RecordDetailScreen", () => {
     expect(screen.getByText("출석 1")).toBeInTheDocument();
     expect(screen.getByText("지각 1")).toBeInTheDocument();
     expect(screen.getByText("첨부 1")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "출석 기록" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "출석 대상" })).toBeInTheDocument();
     expect(screen.getByText("기초 문해 수업")).toBeInTheDocument();
     expect(screen.getByText("박수강")).toBeInTheDocument();
     expect(screen.getByText("이지각")).toBeInTheDocument();

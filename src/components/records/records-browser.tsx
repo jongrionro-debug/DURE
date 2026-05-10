@@ -38,33 +38,29 @@ export function RecordsBrowser({
   };
 }) {
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-[var(--color-background)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
-        <header className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-panel sm:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
-            Records browser
-          </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--color-text-primary)] sm:text-5xl">
-            제출된 세션과 미제출 세션을 같은 브라우저에서 찾습니다.
+    <main className="flex flex-col gap-5">
+      <div className="flex w-full flex-col gap-5">
+        <header className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
+          <h1 className="text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
+            서류·기록
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--color-text-secondary)]">
-            검색과 상태 필터를 함께 써서 특정 수업 기록을 빠르게 열고,
-            상세에서 출석, 교육일지, 첨부를 한 흐름으로 검토할 수 있습니다.
+          <p className="mt-2 max-w-3xl text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
+            수업 일정별 출석, 교육일지, 첨부 문서를 검색하고 검토합니다.
           </p>
         </header>
 
-        <section className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
+        <section className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
           <form className="grid gap-3 lg:grid-cols-[minmax(0,1.2fr)_repeat(3,minmax(0,0.8fr))]">
             <input
               name="search"
               defaultValue={filters.search}
-              placeholder="수업, 사업, 마을, 강사 검색"
-              className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+              placeholder="프로그램, 사업, 마을, 강사 검색"
+              className="h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none"
             />
             <select
               name="status"
               defaultValue={filters.status ?? "all"}
-              className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+              className="h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none"
             >
               <option value="all">전체 상태</option>
               <option value="submitted">제출 완료</option>
@@ -74,7 +70,7 @@ export function RecordsBrowser({
             <select
               name="program"
               defaultValue={filters.program ?? ""}
-              className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+              className="h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none"
             >
               <option value="">전체 사업</option>
               {filterOptions.programs.map((program) => (
@@ -86,7 +82,7 @@ export function RecordsBrowser({
             <select
               name="teacher"
               defaultValue={filters.teacher ?? ""}
-              className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+              className="h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none"
             >
               <option value="">전체 강사</option>
               {filterOptions.teachers.map((teacher) => (
@@ -95,19 +91,19 @@ export function RecordsBrowser({
                 </option>
               ))}
             </select>
-            <button className="rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-[var(--color-accent-ink)] lg:col-span-4 lg:w-fit">
+            <button className="rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white lg:col-span-4 lg:w-fit">
               필터 적용
             </button>
           </form>
         </section>
 
-        <section className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
+        <section className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
           <div className="space-y-3">
             {rows.length ? (
               rows.map((row) => (
                 <div
                   key={row.id}
-                  className="rounded-[22px] bg-[var(--color-surface-alt)] px-4 py-4"
+                  className="rounded-[14px] border border-[var(--color-border)] bg-white px-4 py-4"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
@@ -133,21 +129,21 @@ export function RecordsBrowser({
                   <div className="mt-4 flex flex-wrap gap-2">
                     <Link
                       href={`/records/${row.id}`}
-                      className="rounded-full bg-[var(--color-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-text-primary)]"
+                      className="rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]"
                     >
                       기록 상세
                     </Link>
                     <Link
                       href={`/dashboard/sessions/${row.id}`}
-                      className="rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-text-primary)]"
+                      className="rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]"
                     >
-                      세션 관리
+                      수업 일정 관리
                     </Link>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="rounded-[22px] bg-[var(--color-surface-alt)] px-4 py-5 text-sm leading-6 text-[var(--color-text-secondary)]">
+              <p className="rounded-[14px] bg-[var(--color-surface-alt)] px-4 py-5 text-sm leading-6 text-[var(--color-text-secondary)]">
                 조건에 맞는 기록이 없습니다. 검색어를 줄이거나 상태 필터를 바꿔
                 보세요.
               </p>

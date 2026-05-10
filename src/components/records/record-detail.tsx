@@ -172,13 +172,13 @@ function getStatusLabel(status: AttendanceStatus) {
 function getStatusClassName(status: AttendanceStatus) {
   switch (status) {
     case "present":
-      return "bg-[rgba(47,158,91,0.12)] text-[var(--color-success)]";
+      return "bg-[rgba(26,127,75,0.12)] text-[var(--color-success)]";
     case "late":
-      return "bg-[rgba(201,131,26,0.14)] text-[var(--color-warning)]";
+      return "bg-[rgba(160,96,0,0.14)] text-[var(--color-warning)]";
     case "absent":
-      return "bg-[rgba(217,92,74,0.12)] text-[var(--color-danger)]";
+      return "bg-[rgba(176,48,48,0.12)] text-[var(--color-danger)]";
     case "excused":
-      return "bg-[var(--color-accent-surface)] text-[#806500]";
+      return "bg-[var(--color-accent-surface)] text-[var(--color-accent)]";
     default:
       return "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]";
   }
@@ -198,12 +198,12 @@ function MetricCard({
   const toneClassName = {
     green: "bg-[#DFEAD4] text-[#4E7B32]",
     yellow: "bg-[var(--color-accent-surface)] text-[var(--color-warning)]",
-    red: "bg-[rgba(217,92,74,0.12)] text-[var(--color-danger)]",
+    red: "bg-[rgba(176,48,48,0.12)] text-[var(--color-danger)]",
     neutral: "bg-[var(--color-surface-alt)] text-[var(--color-text-secondary)]",
   }[tone];
 
   return (
-    <section className="flex min-h-[92px] items-center gap-4 rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-4 shadow-panel">
+    <section className="flex min-h-[92px] items-center gap-4 rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
       <span
         className={`grid h-11 w-11 shrink-0 place-items-center rounded-full ${toneClassName}`}
       >
@@ -267,12 +267,12 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
   }, [filter, query, record.attendance]);
 
   return (
-    <main className="min-h-screen bg-[var(--color-background)] text-[var(--color-text-primary)]">
-      <div className="mx-auto w-full max-w-[1500px] px-5 py-5 sm:px-8 lg:px-11">
+    <main className="text-[var(--color-text-primary)]">
+      <div className="w-full">
         <header className="flex items-center">
           <Link
-            href={`/dashboard/status?sessionId=${record.id}`}
-            className="inline-flex h-10 items-center gap-2 rounded-[12px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-semibold shadow-panel transition hover:bg-[var(--color-surface-alt)]"
+            href="/records"
+            className="inline-flex h-10 items-center gap-2 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-semibold transition hover:bg-[var(--color-surface-alt)]"
           >
             <Icon name="arrow" className="h-5 w-5" />
             기록 목록
@@ -281,10 +281,13 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
 
         <section className="mt-10 flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-4xl font-bold tracking-[-0.04em] sm:text-5xl">
-              {record.className}
+            <h1 className="text-[22px] font-extrabold leading-tight">
+              기록 상세
             </h1>
-            <p className="mt-4 text-base font-medium text-[var(--color-text-secondary)]">
+            <p className="mt-2 text-[16px] font-bold text-[var(--color-text-primary)]">
+              {record.className}
+            </p>
+            <p className="mt-2 text-[13px] font-medium text-[var(--color-text-secondary)]">
               {formatDateLabel(record.sessionDate)} · {record.programName} ·{" "}
               {record.villageName}
             </p>
@@ -294,8 +297,8 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
             <span
               className={`inline-flex h-10 items-center gap-2 rounded-full px-4 text-sm font-bold ${
                 record.submittedAt
-                  ? "bg-[rgba(47,158,91,0.12)] text-[var(--color-success)]"
-                  : "bg-[rgba(201,131,26,0.14)] text-[var(--color-warning)]"
+                  ? "bg-[rgba(26,127,75,0.12)] text-[var(--color-success)]"
+                  : "bg-[rgba(160,96,0,0.14)] text-[var(--color-warning)]"
               }`}
             >
               <Icon
@@ -309,9 +312,9 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
             </span>
             <Link
               href={`/dashboard/sessions/${record.id}`}
-              className="inline-flex h-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-bold transition hover:bg-[var(--color-surface-alt)]"
+              className="inline-flex h-10 items-center justify-center rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 text-sm font-bold transition hover:bg-[var(--color-surface-alt)]"
             >
-              세션 관리
+              수업 일정 관리
             </Link>
           </div>
         </section>
@@ -339,9 +342,9 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
         </section>
 
         <div className="mt-7 grid gap-7 xl:grid-cols-[minmax(0,1fr)_390px]">
-          <section className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-panel">
+          <section className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <h2 className="text-2xl font-bold tracking-[-0.03em]">출석 기록</h2>
+              <h2 className="text-[16px] font-bold">출석 대상</h2>
 
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
                 <div className="relative">
@@ -434,7 +437,7 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
           </section>
 
           <aside className="space-y-5">
-            <section className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
+            <section className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
               <div className="flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-full bg-[#DFEAD4] text-[#4F7C32]">
                   <Icon name="journal" className="h-5 w-5" />
@@ -446,9 +449,9 @@ export function RecordDetailScreen({ record }: { record: RecordDetail }) {
               </p>
             </section>
 
-            <section className="rounded-[16px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
+            <section className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]">
               <div className="flex items-center gap-3">
-                <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--color-accent-surface)] text-[#806500]">
+                <span className="grid h-10 w-10 place-items-center rounded-full bg-[var(--color-accent-surface)] text-[var(--color-accent)]">
                   <Icon name="file" className="h-5 w-5" />
                 </span>
                 <h2 className="text-xl font-bold tracking-[-0.03em]">첨부 문서</h2>
