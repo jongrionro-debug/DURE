@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { getServerAuthState } from "@/lib/auth/supabase-server";
 import { sessionCreateSchema } from "@/lib/validations/sessions";
-import { createSessionRecord } from "@/server/services/sessions";
+import { createClassScheduleRecord } from "@/server/services/sessions";
 
 type SessionActionState = {
   message?: string;
@@ -22,13 +23,13 @@ async function requireOrganizationAdmin() {
 
   if (!authState.membershipApproved) {
     return {
-      error: "운영자 승인 이후에만 세션을 생성할 수 있습니다.",
+      error: "운영자 승인 이후에만 수업 일정을 만들 수 있습니다.",
     };
   }
 
   if (authState.role !== "organization_admin") {
     return {
-      error: "세션 생성은 organization_admin만 수행할 수 있습니다.",
+      error: "수업 일정 만들기는 organization_admin만 수행할 수 있습니다.",
     };
   }
 
@@ -48,41 +49,43 @@ export async function createSessionAction(
 
   const parsed = sessionCreateSchema.safeParse({
     sessionDate: formData.get("sessionDate"),
-    villageId: formData.get("villageId"),
-    programId: formData.get("programId"),
-    classId: formData.get("classId"),
+    villageName: formData.get("villageName"),
+    programName: formData.get("programName"),
+    className: formData.get("className"),
     teacherId: formData.get("teacherId"),
+    excludedParticipantIds: formData.getAll("excludedParticipantIds"),
   });
 
   if (!parsed.success) {
     return {
-      message: "세션 생성 정보를 다시 확인해 주세요.",
+      message: "수업 일정 정보를 다시 확인해 주세요.",
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
 
+  let schedule: { sessionId: string };
+
   try {
-    const session = await createSessionRecord({
+    schedule = await createClassScheduleRecord({
       organizationId: access.organizationId,
       sessionDate: parsed.data.sessionDate,
-      villageId: parsed.data.villageId,
-      programId: parsed.data.programId,
-      classId: parsed.data.classId,
+      villageName: parsed.data.villageName,
+      programName: parsed.data.programName,
+      className: parsed.data.className,
       teacherId: parsed.data.teacherId || null,
+      excludedParticipantIds: parsed.data.excludedParticipantIds,
     });
-
-    revalidatePath("/dashboard");
-    revalidatePath("/sessions");
-
-    return {
-      message: `세션을 만들었습니다. 스냅샷 ${session.snapshotCount}명을 고정했습니다.`,
-    };
   } catch (error) {
     return {
       message:
         error instanceof Error
           ? error.message
-          : "세션 생성 중 오류가 발생했습니다.",
+          : "수업 일정 생성 중 오류가 발생했습니다.",
     };
   }
+
+  revalidatePath("/dashboard");
+  revalidatePath("/sessions");
+  revalidatePath(`/dashboard/sessions/${schedule.sessionId}`);
+  redirect(`/dashboard/sessions/${schedule.sessionId}`);
 }
