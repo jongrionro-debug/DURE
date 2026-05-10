@@ -71,7 +71,6 @@ export async function createClassRecord(
     name: string;
     description?: string | null;
     programId?: string | null;
-    villageId?: string | null;
   },
   repository: SettingsRepository = createSettingsRepository(),
 ) {
@@ -80,7 +79,7 @@ export async function createClassRecord(
     name: input.name.trim(),
     description: input.description?.trim() || null,
     programId: normalizeOptionalForeignKey(input.programId),
-    villageId: normalizeOptionalForeignKey(input.villageId),
+    villageId: null,
   });
 }
 
@@ -89,7 +88,7 @@ export async function createParticipantRecord(
     organizationId: string;
     fullName: string;
     note?: string | null;
-    classId?: string | null;
+    villageId: string;
   },
   repository: SettingsRepository = createSettingsRepository(),
 ) {
@@ -97,7 +96,8 @@ export async function createParticipantRecord(
     organizationId: input.organizationId,
     fullName: input.fullName.trim(),
     note: input.note?.trim() || null,
-    classId: normalizeOptionalForeignKey(input.classId),
+    villageId: input.villageId,
+    classId: null,
   });
 }
 
@@ -144,10 +144,10 @@ export async function listSettingsOverview(organizationId: string) {
           id: participants.id,
           fullName: participants.fullName,
           note: participants.note,
-          className: classes.name,
+          villageName: villages.name,
         })
         .from(participants)
-        .leftJoin(classes, eq(participants.classId, classes.id))
+        .leftJoin(villages, eq(participants.villageId, villages.id))
         .where(eq(participants.organizationId, organizationId))
         .orderBy(asc(participants.fullName)),
     ],

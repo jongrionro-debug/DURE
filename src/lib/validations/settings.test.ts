@@ -20,33 +20,31 @@ describe("settings validation", () => {
     expect(() => programSchema.parse({ name: "", description: "" })).toThrow();
   });
 
-  it("allows class input with optional program and village links", () => {
+  it("allows class input with an optional program link", () => {
     expect(
       classSchema.parse({
         name: "기초 문해 수업",
         description: "",
         programId: "",
-        villageId: "",
       }),
     ).toEqual({
       name: "기초 문해 수업",
       description: "",
       programId: "",
-      villageId: "",
     });
   });
 
-  it("allows participant notes to be optional", () => {
+  it("requires participants to belong to a village", () => {
     expect(
       participantSchema.parse({
         fullName: "홍길동",
         note: "",
-        classId: "",
+        villageId: "46a87e1a-9918-4ea1-872f-999999999999",
       }),
     ).toEqual({
       fullName: "홍길동",
       note: "",
-      classId: "",
+      villageId: "46a87e1a-9918-4ea1-872f-999999999999",
     });
   });
 

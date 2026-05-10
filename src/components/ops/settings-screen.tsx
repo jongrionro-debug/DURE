@@ -19,13 +19,12 @@ type SettingsOverview = {
     name: string;
     description: string | null;
     programName: string | null;
-    villageName: string | null;
   }>;
   participants: Array<{
     id: string;
     fullName: string;
     note: string | null;
-    className: string | null;
+    villageName: string | null;
   }>;
 };
 
@@ -64,15 +63,15 @@ const settingsSections = [
   },
   {
     id: "classes",
-    label: "수업",
-    chipLabel: "수업",
-    description: "사업과 마을 연결",
+    label: "프로그램",
+    chipLabel: "프로그램",
+    description: "사업별 운영 단위",
   },
   {
     id: "participants",
     label: "참여자 명단",
     chipLabel: "참여자",
-    description: "수업별 명단",
+    description: "마을별 명단",
   },
 ] satisfies Array<{
   id: SettingsSectionId;
@@ -279,7 +278,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                 운영 기본정보 설정
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">
-                마을, 사업, 수업, 참여자 명단을 순서대로 정리합니다.
+                마을, 사업, 프로그램, 참여자 명단을 순서대로 정리합니다.
               </p>
             </div>
             <SettingsStatChips
@@ -381,8 +380,8 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
 
             {activeSection === "classes" ? (
               <WorkspaceShell
-                title="수업"
-                description="사업과 마을을 선택적으로 연결해 실제 운영 수업을 만듭니다."
+                title="프로그램"
+                description="사업에 연결할 수 있는 운영 프로그램을 관리합니다."
               >
                 <div className="space-y-2">
                   {data.classes.length ? (
@@ -392,14 +391,13 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                           {klass.name}
                         </p>
                         <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                          {klass.programName ?? "사업 미연결"} ·{" "}
-                          {klass.villageName ?? "마을 미연결"}
+                          {klass.programName ?? "사업 미연결"}
                         </p>
                       </ItemBubble>
                     ))
                   ) : (
                     <ItemBubble className="text-sm text-[var(--color-text-secondary)]">
-                      아직 수업이 없습니다. 운영할 수업을 추가해 주세요.
+                      아직 프로그램이 없습니다. 운영할 프로그램을 추가해 주세요.
                     </ItemBubble>
                   )}
                 </div>
@@ -411,7 +409,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                   />
                   <textarea
                     name="description"
-                    placeholder="수업 설명"
+                    placeholder="프로그램 설명"
                     className={textareaClassName}
                   />
                   <select name="programId" className={inputClassName}>
@@ -422,15 +420,9 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                       </option>
                     ))}
                   </select>
-                  <select name="villageId" className={inputClassName}>
-                    <option value="">마을 선택 안 함</option>
-                    {data.villages.map((village) => (
-                      <option key={village.id} value={village.id}>
-                        {village.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button className={primaryButtonClassName}>수업 추가</button>
+                  <button className={primaryButtonClassName}>
+                    프로그램 추가
+                  </button>
                 </form>
                 <div className="mt-3">
                   <Feedback state={classState} />
@@ -441,7 +433,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
             {activeSection === "participants" ? (
               <WorkspaceShell
                 title="참여자 명단"
-                description="수업에 연결하거나 비연결 상태로 먼저 명단을 쌓을 수 있습니다."
+                description="참여자를 마을 기준으로 관리합니다."
               >
                 <div className="space-y-2">
                   {data.participants.length ? (
@@ -453,7 +445,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                               {participant.fullName}
                             </p>
                             <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                              {participant.className ?? "수업 미연결"}
+                              {participant.villageName ?? "마을 미연결"}
                               {participant.note ? ` · ${participant.note}` : ""}
                             </p>
                           </div>
@@ -487,11 +479,11 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                     placeholder="참여자 메모"
                     className={textareaClassName}
                   />
-                  <select name="classId" className={inputClassName}>
-                    <option value="">수업 선택 안 함</option>
-                    {data.classes.map((klass) => (
-                      <option key={klass.id} value={klass.id}>
-                        {klass.name}
+                  <select name="villageId" className={inputClassName}>
+                    <option value="">마을 선택</option>
+                    {data.villages.map((village) => (
+                      <option key={village.id} value={village.id}>
+                        {village.name}
                       </option>
                     ))}
                   </select>

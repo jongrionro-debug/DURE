@@ -28,7 +28,6 @@ describe("SettingsScreen", () => {
         name: "기초 문해 수업",
         description: "오전 반",
         programName: "문해 사업",
-        villageName: "성내마을",
       },
     ],
     participants: [
@@ -36,7 +35,7 @@ describe("SettingsScreen", () => {
         id: "participant-1",
         fullName: "홍길동",
         note: "보호자 연락 필요",
-        className: "기초 문해 수업",
+        villageName: "성내마을",
       },
     ],
   };
@@ -49,7 +48,7 @@ describe("SettingsScreen", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "마을 1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "사업 1" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "수업 1" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "프로그램 1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "참여자 1" })).toBeInTheDocument();
 
     const channelNav = screen.getByRole("navigation", {
@@ -60,7 +59,9 @@ describe("SettingsScreen", () => {
       "page",
     );
     expect(within(channelNav).getByRole("button", { name: /사업/ })).toBeInTheDocument();
-    expect(within(channelNav).getByRole("button", { name: /수업/ })).toBeInTheDocument();
+    expect(
+      within(channelNav).getByRole("button", { name: /프로그램/ }),
+    ).toBeInTheDocument();
     expect(
       within(channelNav).getByRole("button", { name: /참여자 명단/ }),
     ).toBeInTheDocument();
@@ -73,9 +74,10 @@ describe("SettingsScreen", () => {
     expect(screen.queryByRole("heading", { name: "사업" })).not.toBeInTheDocument();
     expect(screen.queryByPlaceholderText("예: 문해 사업")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "사업 추가" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "수업 추가" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "프로그램 추가" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "참여자 추가" })).not.toBeInTheDocument();
-    expect(screen.queryByText("프로그램")).not.toBeInTheDocument();
   });
 
   it("switches the visible workspace when a settings channel is clicked", async () => {
@@ -101,13 +103,15 @@ describe("SettingsScreen", () => {
     expect(screen.queryByRole("heading", { name: "마을" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "마을 추가" })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole("button", { name: "수업 1" }));
+    await user.click(screen.getByRole("button", { name: "프로그램 1" }));
 
-    expect(screen.getByRole("heading", { name: "수업" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "프로그램" })).toBeInTheDocument();
     expect(screen.getByText("기초 문해 수업")).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "사업 선택 안 함" })).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "마을 선택 안 함" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "수업 추가" })).toBeInTheDocument();
+    expect(
+      screen.queryByRole("option", { name: "마을 선택 안 함" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "프로그램 추가" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "사업 추가" })).not.toBeInTheDocument();
 
     await user.click(
@@ -116,8 +120,11 @@ describe("SettingsScreen", () => {
 
     expect(screen.getByRole("heading", { name: "참여자 명단" })).toBeInTheDocument();
     expect(screen.getByText("홍길동")).toBeInTheDocument();
-    expect(screen.getByRole("option", { name: "수업 선택 안 함" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "마을 선택" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "성내마을" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "참여자 추가" })).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "수업 추가" })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "프로그램 추가" }),
+    ).not.toBeInTheDocument();
   });
 });

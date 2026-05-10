@@ -122,12 +122,11 @@ export async function createClassAction(
     name: formData.get("name"),
     description: formData.get("description"),
     programId: formData.get("programId"),
-    villageId: formData.get("villageId"),
   });
 
   if (!parsed.success) {
     return {
-      message: "수업 정보를 다시 확인해 주세요.",
+      message: "프로그램 정보를 다시 확인해 주세요.",
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
@@ -137,11 +136,10 @@ export async function createClassAction(
     name: parsed.data.name,
     description: parsed.data.description,
     programId: parsed.data.programId,
-    villageId: parsed.data.villageId,
   });
 
   revalidatePath("/settings");
-  return { message: "수업을 추가했습니다." };
+  return { message: "프로그램을 추가했습니다." };
 }
 
 export async function createParticipantAction(
@@ -156,7 +154,7 @@ export async function createParticipantAction(
   const parsed = participantSchema.safeParse({
     fullName: formData.get("fullName"),
     note: formData.get("note"),
-    classId: formData.get("classId"),
+    villageId: formData.get("villageId"),
   });
 
   if (!parsed.success) {
@@ -170,7 +168,7 @@ export async function createParticipantAction(
     organizationId: access.organizationId,
     fullName: parsed.data.fullName,
     note: parsed.data.note,
-    classId: parsed.data.classId,
+    villageId: parsed.data.villageId,
   });
 
   revalidatePath("/settings");

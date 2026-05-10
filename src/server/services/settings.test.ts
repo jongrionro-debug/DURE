@@ -40,9 +40,8 @@ describe("settings services", () => {
     ]);
   });
 
-  it("creates class and participant records with nullable links", async () => {
+  it("creates class records with nullable program links", async () => {
     const classesInserted: unknown[] = [];
-    const participantsInserted: unknown[] = [];
 
     const repository = {
       insertVillage: async () => undefined,
@@ -50,9 +49,7 @@ describe("settings services", () => {
       insertClass: async (values: unknown) => {
         classesInserted.push(values);
       },
-      insertParticipant: async (values: unknown) => {
-        participantsInserted.push(values);
-      },
+      insertParticipant: async () => undefined,
       deleteParticipant: async () => undefined,
     };
 
@@ -62,17 +59,6 @@ describe("settings services", () => {
         name: "기초 문해 수업",
         description: "",
         programId: "",
-        villageId: "",
-      },
-      repository,
-    );
-
-    await createParticipantRecord(
-      {
-        organizationId: "org-1",
-        fullName: "홍길동",
-        note: "",
-        classId: "",
       },
       repository,
     );
@@ -86,12 +72,36 @@ describe("settings services", () => {
         villageId: null,
       },
     ]);
-    expect(participantsInserted).toEqual([
+  });
+
+  it("creates participants under a village", async () => {
+    const inserted: unknown[] = [];
+
+    await createParticipantRecord(
       {
         organizationId: "org-1",
-        fullName: "홍길동",
-        note: null,
+        villageId: "village-1",
+        fullName: "김영희",
+        note: "오전반",
+      },
+      {
+        insertVillage: async () => undefined,
+        insertProgram: async () => undefined,
+        insertClass: async () => undefined,
+        insertParticipant: async (values) => {
+          inserted.push(values);
+        },
+        deleteParticipant: async () => undefined,
+      },
+    );
+
+    expect(inserted).toEqual([
+      {
+        organizationId: "org-1",
+        villageId: "village-1",
         classId: null,
+        fullName: "김영희",
+        note: "오전반",
       },
     ]);
   });

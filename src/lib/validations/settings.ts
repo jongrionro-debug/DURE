@@ -15,7 +15,7 @@ export const programSchema = z.object({
 });
 
 export const classSchema = z.object({
-  name: z.string().trim().min(2, "수업 이름을 2자 이상 입력해 주세요."),
+  name: z.string().trim().min(2, "프로그램 이름을 2자 이상 입력해 주세요."),
   description: z
     .string()
     .trim()
@@ -23,7 +23,6 @@ export const classSchema = z.object({
     .optional()
     .or(z.literal("")),
   programId: z.string().uuid().optional().or(z.literal("")),
-  villageId: z.string().uuid().optional().or(z.literal("")),
 });
 
 export const participantSchema = z.object({
@@ -34,7 +33,7 @@ export const participantSchema = z.object({
     .max(300, "메모는 300자 이하로 입력해 주세요.")
     .optional()
     .or(z.literal("")),
-  classId: z.string().uuid().optional().or(z.literal("")),
+  villageId: z.string().uuid("참여자가 속한 마을을 선택해 주세요."),
 });
 
 export const participantDeleteSchema = z.object({
