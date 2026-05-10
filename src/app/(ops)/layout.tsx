@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { AuthSessionBar } from "@/components/auth/auth-session-bar";
+import { AppShell } from "@/components/ui/app-shell";
 import { getProtectedRouteRedirect } from "@/lib/auth/routing";
 import { getServerAuthState } from "@/lib/auth/supabase-server";
 
@@ -21,12 +21,8 @@ export default async function OpsLayout({
   }
 
   return (
-    <>
-      <AuthSessionBar
-        email={authState.user?.email}
-        roleLabel="운영자"
-      />
+    <AppShell role="ops" email={authState.user?.email}>
       {children}
-    </>
+    </AppShell>
   );
 }
