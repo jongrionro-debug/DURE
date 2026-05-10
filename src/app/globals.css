@@ -1,19 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f6f1e8;
-  --foreground: #1c1a17;
-  --surface: #fffdf8;
-  --surface-alt: #f3ebdd;
-  --border: #e5dac8;
-  --accent: #fee500;
-  --accent-surface: #fff3a4;
-  --accent-ink: #1f1a17;
-  --text-primary: #1c1a17;
-  --text-secondary: #6b665e;
-  --success: #2f9e5b;
-  --warning: #c9831a;
-  --danger: #d95c4a;
+  --background: #ebebeb;
+  --foreground: #1e212f;
+  --surface: #ffffff;
+  --surface-alt: #e0e0e0;
+  --border: #d4d4d4;
+  --accent: #517bf6;
+  --accent-surface: rgba(81, 123, 246, 0.1);
+  --accent-ink: #ffffff;
+  --sidebar: #2a2d3e;
+  --sidebar-ink: #8e9096;
+  --text-primary: #1e212f;
+  --text-secondary: #6b6f7a;
+  --success: #1a7f4b;
+  --warning: #a06000;
+  --danger: #b03030;
 }
 
 @theme inline {
@@ -25,6 +27,8 @@
   --color-accent: var(--accent);
   --color-accent-surface: var(--accent-surface);
   --color-accent-ink: var(--accent-ink);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-ink: var(--sidebar-ink);
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-success: var(--success);
@@ -45,13 +49,8 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family:
-    var(--font-ui),
-    "Pretendard Variable",
-    "SUIT Variable",
-    "Apple SD Gothic Neo",
-    "Noto Sans KR",
-    sans-serif;
+  font-family: "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
 a {
