@@ -43,9 +43,7 @@ describe("SettingsScreen", () => {
   it("renders the settings flow as a channel-based operations console", () => {
     render(<SettingsScreen data={settingsData} />);
 
-    expect(
-      screen.getByRole("heading", { name: "운영 기본정보 설정" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "운영 설정" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "마을 1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "사업 1" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "프로그램 1" })).toBeInTheDocument();
@@ -120,6 +118,8 @@ describe("SettingsScreen", () => {
 
     expect(screen.getByRole("heading", { name: "참여자 명단" })).toBeInTheDocument();
     expect(screen.getByText("홍길동")).toBeInTheDocument();
+    expect(screen.getByLabelText("참여자 마을")).toBeInTheDocument();
+    expect(screen.queryByLabelText("참여자 수업")).not.toBeInTheDocument();
     expect(screen.getByRole("option", { name: "마을 선택" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "성내마을" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "참여자 추가" })).toBeInTheDocument();

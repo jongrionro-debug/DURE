@@ -36,15 +36,19 @@ type ActionState = {
 const initialState: ActionState = {};
 
 const inputClassName =
-  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none transition placeholder:text-[color:rgba(107,102,94,0.72)] focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent-surface)]";
+  "h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(81,123,246,0.15)]";
 
 const textareaClassName = `${inputClassName} min-h-24 resize-y`;
 
 const primaryButtonClassName =
-  "rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-[var(--color-accent-ink)] transition hover:brightness-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-surface)]";
+  "rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white";
 
 const secondaryButtonClassName =
-  "rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)] transition hover:text-[var(--color-text-primary)]";
+  "rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]";
+const sectionClassName =
+  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]";
+const tabClassName = "rounded-[14px] px-3 py-[9px] text-[13px] font-medium";
+const activeTabClassName = "bg-[var(--color-accent)] text-white";
 
 type SettingsSectionId = "villages" | "programs" | "classes" | "participants";
 
@@ -95,7 +99,7 @@ function getSectionCount(data: SettingsOverview, sectionId: SettingsSectionId) {
 
 function sectionButtonClassName(active: boolean) {
   return active
-    ? "border-[var(--color-accent)] bg-[var(--color-accent-surface)] text-[var(--color-accent-ink)]"
+    ? "border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
     : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]";
 }
 
@@ -116,7 +120,7 @@ function SettingsStatChips({
           type="button"
           onClick={() => onSectionChange(section.id)}
           aria-pressed={activeSection === section.id}
-          className={`rounded-full border px-3 py-2 text-xs font-semibold transition ${sectionButtonClassName(
+          className={`rounded-[14px] border px-3 py-[9px] text-[13px] font-medium transition ${sectionButtonClassName(
             activeSection === section.id,
           )}`}
         >
@@ -146,19 +150,19 @@ function SettingsChannelNav({
             onClick={() => onSectionChange(section.id)}
             aria-label={section.label}
             aria-current={active ? "page" : undefined}
-            className={`flex w-full items-center justify-between gap-3 rounded-[20px] px-4 py-3 text-left transition-colors ${
+            className={`flex w-full items-center justify-between gap-3 text-left transition-colors ${tabClassName} ${
               active
-              ? "bg-[var(--color-accent-surface)] text-[var(--color-accent-ink)]"
+              ? activeTabClassName
               : "bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-alt)]"
             }`}
           >
             <span>
               <span className="block text-sm font-semibold">{section.label}</span>
-              <span className="mt-1 block text-xs leading-5 text-[color:rgba(31,26,23,0.68)]">
+              <span className="mt-1 block text-xs leading-5 text-[var(--color-text-secondary)]">
                 {section.description}
               </span>
             </span>
-            <span aria-hidden="true" className="text-lg text-[color:rgba(31,26,23,0.62)]">
+            <span aria-hidden="true" className="text-lg text-[var(--color-text-secondary)]">
               ›
             </span>
           </button>
@@ -178,12 +182,12 @@ function WorkspaceShell({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] bg-[var(--color-surface)] p-5">
+    <section className={sectionClassName}>
       <div>
-        <h2 className="text-xl font-bold tracking-[-0.03em] text-[var(--color-text-primary)]">
+        <h2 className="text-[16px] font-bold text-[var(--color-text-primary)]">
           {title}
         </h2>
-        <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
+        <p className="mt-1 text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
           {description}
         </p>
       </div>
@@ -201,7 +205,7 @@ function ItemBubble({
 }) {
   return (
     <div
-      className={`rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 ${className}`.trim()}
+      className={`rounded-[10px] bg-[var(--color-surface-alt)] px-4 py-3 ${className}`.trim()}
     >
       {children}
     </div>
@@ -218,7 +222,7 @@ function Feedback({ state }: { state: ActionState }) {
   }
 
   return (
-    <div className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm leading-6 text-[var(--color-text-secondary)]">
+    <div className="rounded-[10px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm leading-6 text-[var(--color-text-secondary)]">
       {state.message ? <p>{state.message}</p> : null}
       {fieldErrors.length ? (
         <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -256,28 +260,24 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
   );
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-[var(--color-background)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
-        <header className="flex flex-col gap-5 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-panel sm:p-7">
+    <main className="flex flex-col gap-5">
+      <div className="flex w-full flex-col gap-5">
+        <header className={`flex flex-col gap-5 ${sectionClassName}`}>
           <div>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-2 text-sm font-semibold text-[var(--color-text-primary)] transition hover:-translate-y-0.5"
+              className={secondaryButtonClassName}
             >
-              <span aria-hidden="true">&lt;</span>
               뒤로 가기
             </Link>
           </div>
 
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
-                Ops settings
-              </p>
-              <h1 className="mt-2 text-3xl font-bold tracking-[-0.04em] text-[var(--color-text-primary)] sm:text-4xl">
-                운영 기본정보 설정
+              <h1 className="text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
+                운영 설정
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-[var(--color-text-secondary)] sm:text-base">
+              <p className="mt-2 max-w-2xl text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
                 마을, 사업, 프로그램, 참여자 명단을 순서대로 정리합니다.
               </p>
             </div>
@@ -289,8 +289,8 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
           </div>
         </header>
 
-        <section className="grid gap-5 rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-4 shadow-panel lg:grid-cols-[260px_minmax(0,1fr)] lg:p-5">
-          <aside className="rounded-[24px] bg-[var(--color-surface-alt)] p-3">
+        <section className="grid gap-5 lg:grid-cols-[260px_minmax(0,1fr)]">
+          <aside className={sectionClassName}>
             <SettingsChannelNav
               activeSection={activeSection}
               onSectionChange={setActiveSection}
@@ -404,6 +404,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                 <form action={classAction} className="mt-4 grid gap-3">
                   <input
                     name="name"
+                    aria-label="프로그램 이름"
                     placeholder="예: 기초 문해 수업"
                     className={inputClassName}
                   />
@@ -445,7 +446,7 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                               {participant.fullName}
                             </p>
                             <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-                              {participant.villageName ?? "마을 미연결"}
+                              {participant.villageName ?? "마을 미지정"}
                               {participant.note ? ` · ${participant.note}` : ""}
                             </p>
                           </div>
@@ -464,22 +465,28 @@ export function SettingsScreen({ data }: { data: SettingsOverview }) {
                     ))
                   ) : (
                     <ItemBubble className="text-sm text-[var(--color-text-secondary)]">
-                      아직 참여자 명단이 없습니다. 첫 참여자를 추가해 주세요.
+                      등록된 참여자 명단이 없습니다.
                     </ItemBubble>
                   )}
                 </div>
                 <form action={participantAction} className="mt-4 grid gap-3">
                   <input
                     name="fullName"
+                    aria-label="참여자 이름"
                     placeholder="예: 홍길동"
                     className={inputClassName}
                   />
                   <textarea
                     name="note"
+                    aria-label="메모"
                     placeholder="참여자 메모"
                     className={textareaClassName}
                   />
-                  <select name="villageId" className={inputClassName}>
+                  <select
+                    name="villageId"
+                    aria-label="참여자 마을"
+                    className={inputClassName}
+                  >
                     <option value="">마을 선택</option>
                     {data.villages.map((village) => (
                       <option key={village.id} value={village.id}>
