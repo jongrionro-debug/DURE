@@ -1,16 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useActionState, useState } from "react";
+import { useActionState, useMemo, useState } from "react";
 
-import {
-  addExistingSessionParticipantAction,
-  assignSessionTeacherAction,
-  createSessionParticipantAction,
-  removeSessionParticipantAction,
-} from "@/server/actions/session-management";
 import { createSessionAction } from "@/server/actions/sessions";
 
 type SessionDashboardData = {
@@ -41,6 +33,12 @@ type SessionDashboardData = {
     teacherEmail: string | null;
     snapshotCount: number;
     submittedAt: Date | null;
+  }>;
+  participants: Array<{
+    id: string;
+    fullName: string;
+    note: string | null;
+    villageId: string | null;
   }>;
 };
 
@@ -81,115 +79,32 @@ type ActionState = {
   fieldErrors?: Record<string, string[] | undefined>;
 };
 
-type SessionManagementRecord = {
-  id: string;
-  sessionDate: string;
-  classId: string;
-  className: string;
-  villageName: string;
-  programName: string;
-  teacherId: string | null;
-  teacherName: string | null;
-  teacherEmail: string | null;
-  submittedAt: Date | null;
-  updatedAt: Date;
-  teachers: Array<{
-    userId: string;
-    email: string;
-    displayName: string | null;
-  }>;
-  participants: Array<{
-    id: string;
-    fullName: string;
-    note: string | null;
-  }>;
-  snapshots: Array<{
-    id: string;
-    participantId: string | null;
-    fullName: string;
-    note: string | null;
-    rosterOrder: number;
-    attendanceStatus: "present" | "absent" | "late" | "excused" | null;
-  }>;
-};
-
 const initialState: ActionState = {};
 
-const actionCards = [
-  { label: "사업 만들기", href: "/settings", active: false },
-  { label: "수업 연결하기", href: "/settings", active: false },
-  { label: "강사 배정하기", href: "/users", active: false },
-] as const;
+const cardClassName =
+  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] p-[18px]";
+const inputClassName =
+  "h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(81,123,246,0.15)]";
+const primaryButtonClassName =
+  "rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white";
+const secondaryButtonClassName =
+  "rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]";
 
-const nextActionCardClassName =
-  "flex min-h-[82px] items-center justify-center rounded-[14px] border-2 border-[#fcce00] bg-white px-6 text-center text-[22px] font-semibold text-black transition hover:-translate-y-0.5 hover:bg-[#ffec1d] hover:shadow-[0_4px_4px_rgba(0,0,0,0.16)] focus-visible:bg-[#ffec1d] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#fcce00] sm:min-h-[114px] sm:rounded-[20px] sm:text-[25px]";
-
-function formatDateTimeLabel(value: Date) {
+function formatToday() {
   return new Intl.DateTimeFormat("ko-KR", {
-    month: "short",
+    year: "numeric",
+    month: "long",
     day: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(value);
+    weekday: "long",
+  }).format(new Date());
 }
 
 function formatSessionDate(value: string) {
-  const date = new Date(`${value}T00:00:00`);
-  const weekday = new Intl.DateTimeFormat("ko-KR", {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "short",
+    day: "numeric",
     weekday: "short",
-  }).format(date);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}.${month}.${day}(${weekday})`;
-}
-
-function DashboardTabs({ activeView }: { activeView: "actions" | "status" }) {
-  const baseClassName =
-    "flex h-12 min-w-0 flex-1 items-center justify-center border text-lg font-semibold transition sm:h-[50px] sm:text-[25px]";
-  const activeClassName =
-    "border-[#48672e] bg-[#fffdf8] text-[#48672e]";
-  const inactiveClassName =
-    "border-[#9d9a95] bg-[#fffdf8] text-[#555555] hover:text-black";
-
-  return (
-    <nav className="mx-auto mt-9 flex w-full max-w-[840px]" aria-label="대시보드 보기">
-      <Link
-        href="/dashboard"
-        className={`${baseClassName} ${
-          activeView === "actions" ? activeClassName : inactiveClassName
-        }`}
-      >
-        다음 액션
-      </Link>
-      <Link
-        href="/dashboard/status"
-        className={`${baseClassName} ${
-          activeView === "status" ? activeClassName : inactiveClassName
-        }`}
-      >
-        상태 요약
-      </Link>
-    </nav>
-  );
-}
-
-function DashboardTitle() {
-  return (
-    <div className="flex items-center justify-center gap-3">
-      <h1 className="text-[28px] font-extrabold text-black sm:text-[35px]">
-        운영자 대시보드
-      </h1>
-      <Image
-        src="/figma/search-icon.png"
-        alt=""
-        width={44}
-        height={44}
-        className="size-9 object-contain sm:size-11"
-      />
-    </div>
-  );
+  }).format(new Date(`${value}T00:00:00`));
 }
 
 function Feedback({ state }: { state: ActionState }) {
@@ -202,7 +117,7 @@ function Feedback({ state }: { state: ActionState }) {
   }
 
   return (
-    <div className="mt-4 rounded-[18px] bg-[#fff9db] px-4 py-3 text-sm font-semibold text-[#8f7700]">
+    <div className="rounded-[10px] border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-3 py-2 text-[13px] font-medium text-[var(--color-text-secondary)]">
       {state.message ? <p>{state.message}</p> : null}
       {fieldErrors.length ? (
         <ul className="mt-2 list-disc space-y-1 pl-5">
@@ -215,7 +130,7 @@ function Feedback({ state }: { state: ActionState }) {
   );
 }
 
-function SessionCreateModal({
+function ScheduleCreateModal({
   data,
   onClose,
 }: {
@@ -226,481 +141,326 @@ function SessionCreateModal({
     createSessionAction,
     initialState,
   );
-  const selectableClasses = data.classes.filter(
-    (klass) => klass.programId && klass.villageId,
+  const [villageName, setVillageName] = useState("");
+  const selectedVillage = data.villages.find(
+    (village) => village.name === villageName.trim(),
   );
-  const initialClassId = selectableClasses[0]?.id ?? "";
-  const [selectedClassId, setSelectedClassId] = useState(initialClassId);
-  const [selectedTeacherId, setSelectedTeacherId] = useState(
-    () =>
-      data.teacherAssignments.find(
-        (assignment) => assignment.classId === initialClassId,
-      )?.teacherId ?? "",
-  );
-  const selectedClass =
-    selectableClasses.find((klass) => klass.id === selectedClassId) ?? null;
-  const selectedClassTeacherAssignments = data.teacherAssignments.filter(
-    (assignment) => assignment.classId === selectedClassId,
-  );
-  const missingRequirements = [
-    !data.villages.length ? "마을" : null,
-    !data.programs.length ? "사업" : null,
-    !selectableClasses.length ? "마을과 사업이 연결된 수업" : null,
-  ].filter(Boolean);
-
-  function handleClassChange(classId: string) {
-    const nextTeacherId =
-      data.teacherAssignments.find((assignment) => assignment.classId === classId)
-        ?.teacherId ?? "";
-
-    setSelectedClassId(classId);
-    setSelectedTeacherId(nextTeacherId);
-  }
+  const participantCandidates = selectedVillage
+    ? data.participants.filter(
+        (participant) => participant.villageId === selectedVillage.id,
+      )
+    : [];
 
   return (
     <div className="fixed inset-0 z-20 flex items-center justify-center bg-black/30 px-5 py-8">
-      <section className="w-full max-w-xl rounded-[28px] bg-[#fffdf8] p-6 shadow-[0_20px_60px_rgba(0,0,0,0.18)]">
+      <section className="w-full max-w-[680px] rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-[0_18px_48px_rgba(0,0,0,0.18)]">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-2xl font-extrabold text-black">세션 만들기</p>
-            <p className="mt-2 text-sm leading-6 text-[#555555]">
-              날짜, 마을, 사업, 수업을 정하면 강사 작업공간이 바로 열립니다.
+            <h2 className="text-[18px] font-extrabold text-[var(--color-text-primary)]">
+              수업 일정 만들기
+            </h2>
+            <p className="mt-2 text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
+              현재 마을 참여자 명단을 출석 대상으로 고정합니다.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-[#d8cdbb] px-3 py-1.5 text-sm font-semibold text-[#555555]"
+            className={secondaryButtonClassName}
           >
             닫기
           </button>
         </div>
 
-        {missingRequirements.length ? (
-          <p className="mt-5 rounded-[18px] bg-[#fff4c2] px-4 py-3 text-sm leading-6 text-[#6f5a00]">
-            아직 {missingRequirements.join(", ")} 정보가 부족합니다. 설정에서
-            기본 데이터를 채운 뒤 세션을 만들 수 있습니다.
-          </p>
-        ) : null}
+        <form action={createAction} className="mt-5 grid gap-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
+              진행일
+              <input
+                type="date"
+                name="sessionDate"
+                aria-label="진행일"
+                className={inputClassName}
+              />
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
+              담당 강사
+              <select
+                name="teacherId"
+                aria-label="담당 강사"
+                className={inputClassName}
+              >
+                <option value="">강사 미배정</option>
+                {data.teacherAssignments.map((assignment) => (
+                  <option
+                    key={`${assignment.classId}-${assignment.teacherId}`}
+                    value={assignment.teacherId}
+                  >
+                    {assignment.teacherName ?? assignment.teacherEmail}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
+              사업
+              <input
+                name="programName"
+                list="program-options"
+                aria-label="사업"
+                className={inputClassName}
+              />
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)]">
+              마을
+              <input
+                name="villageName"
+                list="village-options"
+                aria-label="마을"
+                value={villageName}
+                onChange={(event) => setVillageName(event.target.value)}
+                className={inputClassName}
+              />
+            </label>
+            <label className="grid gap-1.5 text-[12px] font-bold text-[var(--color-text-primary)] sm:col-span-2">
+              프로그램
+              <input
+                name="className"
+                list="class-options"
+                aria-label="프로그램"
+                className={inputClassName}
+              />
+            </label>
+          </div>
 
-        <form action={createAction} className="mt-5 grid gap-3">
-          <label className="grid gap-2 text-sm font-semibold text-black">
-            날짜
-            <input
-              type="date"
-              name="sessionDate"
-              className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
-            />
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-black">
-            마을
-            <span className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm text-[#555555]">
-              {selectedClass?.villageName ?? "수업을 먼저 선택해 주세요"}
-            </span>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-black">
-            사업
-            <span className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm text-[#555555]">
-              {selectedClass?.programName ?? "수업을 먼저 선택해 주세요"}
-            </span>
-          </label>
-          <input
-            type="hidden"
-            name="villageId"
-            value={selectedClass?.villageId ?? ""}
-          />
-          <input
-            type="hidden"
-            name="programId"
-            value={selectedClass?.programId ?? ""}
-          />
-          <label className="grid gap-2 text-sm font-semibold text-black">
-            수업
-            <select
-              name="classId"
-              value={selectedClassId}
-              onChange={(event) => handleClassChange(event.target.value)}
-              className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
-            >
-              <option value="">수업 선택</option>
-              {data.classes.map((klass) => (
-                <option
-                  key={klass.id}
-                  value={klass.id}
-                  disabled={!klass.programId || !klass.villageId}
-                >
-                  {klass.name} · {klass.programName ?? "사업 미연결"} ·{" "}
-                  {klass.villageName ?? "마을 미연결"}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="grid gap-2 text-sm font-semibold text-black">
-            강사
-            <select
-              name="teacherId"
-              value={selectedTeacherId}
-              onChange={(event) => setSelectedTeacherId(event.target.value)}
-              className="rounded-[16px] border border-[#e1d6c5] bg-white px-4 py-3 text-sm outline-none"
-            >
-              <option value="">강사 나중에 할당</option>
-              {selectedClassTeacherAssignments.map((assignment) => (
-                <option
-                  key={`${assignment.classId}-${assignment.teacherId}`}
-                  value={assignment.teacherId}
-                >
-                  {assignment.className} ·{" "}
-                  {assignment.teacherName ?? assignment.teacherEmail}
-                </option>
-              ))}
-            </select>
-          </label>
-          <button className="mt-2 rounded-[18px] border-2 border-[#fcce00] bg-[#ffec1d] px-4 py-4 text-base font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.20)]">
-            세션 생성
-          </button>
+          <datalist id="program-options">
+            {data.programs.map((program) => (
+              <option key={program.id} value={program.name} />
+            ))}
+          </datalist>
+          <datalist id="village-options">
+            {data.villages.map((village) => (
+              <option key={village.id} value={village.name} />
+            ))}
+          </datalist>
+          <datalist id="class-options">
+            {data.classes.map((klass) => (
+              <option key={klass.id} value={klass.name} />
+            ))}
+          </datalist>
+
+          <fieldset className="rounded-[14px] border border-[var(--color-border)] px-4 py-3">
+            <legend className="px-1 text-[12px] font-bold text-[var(--color-text-primary)]">
+              출석 대상 제외
+            </legend>
+            {participantCandidates.length ? (
+              <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                {participantCandidates.map((participant) => (
+                  <label
+                    key={participant.id}
+                    className="flex items-start gap-2 text-[13px] font-medium text-[var(--color-text-primary)]"
+                  >
+                    <input
+                      type="checkbox"
+                      name="excludedParticipantIds"
+                      value={participant.id}
+                      className="mt-1"
+                    />
+                    <span>
+                      {participant.fullName}
+                      {participant.note ? (
+                        <span className="block text-[11px] text-[var(--color-text-secondary)]">
+                          {participant.note}
+                        </span>
+                      ) : null}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-[13px] font-medium text-[var(--color-text-secondary)]">
+                마을을 선택하면 출석 대상 후보가 표시됩니다.
+              </p>
+            )}
+          </fieldset>
+
+          <Feedback state={createState} />
+          <button className={primaryButtonClassName}>수업 일정 만들기</button>
         </form>
-        <Feedback state={createState} />
       </section>
     </div>
   );
 }
 
-function NextActionsView({ data }: { data: SessionDashboardData }) {
-  const [isSessionModalOpen, setIsSessionModalOpen] = useState(false);
-
+function StatCard({ label, value }: { label: string; value: string | number }) {
   return (
-    <>
-      <section className="mx-auto mt-10 w-full max-w-[1170px] bg-white px-8 py-10 sm:px-[62px] sm:py-[61px]">
-        <div className="grid gap-8 lg:grid-cols-2 lg:gap-x-[60px] lg:gap-y-[42px]">
-          {actionCards.map((card) => (
-            <Link
-              key={card.label}
-              href={card.href}
-              className={nextActionCardClassName}
-            >
-              {card.label}
-            </Link>
-          ))}
-          <button
-            type="button"
-            onClick={() => setIsSessionModalOpen(true)}
-            className={`${nextActionCardClassName} sm:text-[28px]`}
-          >
-            세션 만들기
-          </button>
-        </div>
-        <p className="mt-[86px] text-center text-[18px] font-semibold text-[#c5a100] sm:text-[25px]">
-          운영자가 세션을 만들면 강사 작업공간이 바로 열립니다.
-        </p>
-      </section>
-      {isSessionModalOpen ? (
-        <SessionCreateModal
-          data={data}
-          onClose={() => setIsSessionModalOpen(false)}
-        />
-      ) : null}
-    </>
-  );
-}
-
-function StatusSummaryView({
-  data,
-  dashboard,
-  sessionManagementRecords = [],
-}: {
-  data: SessionDashboardData;
-  dashboard: DashboardQueryData;
-  sessionManagementRecords?: SessionManagementRecord[];
-}) {
-  const searchParams = useSearchParams();
-  const urlSessionId = searchParams.get("sessionId");
-  
-  const [existingParticipantState, existingParticipantAction] = useActionState(
-    addExistingSessionParticipantAction,
-    initialState,
-  );
-  const [newParticipantState, newParticipantAction] = useActionState(
-    createSessionParticipantAction,
-    initialState,
-  );
-  const [removeParticipantState, removeParticipantAction] = useActionState(
-    removeSessionParticipantAction,
-    initialState,
-  );
-  const [teacherAssignmentState, teacherAssignmentAction] = useActionState(
-    assignSessionTeacherAction,
-    initialState,
-  );
-  const [isAddPanelOpen, setIsAddPanelOpen] = useState(false);
-  const [selectedTeacherId, setSelectedTeacherId] = useState("");
-  const isExampleMode = data.recentSessions.length === 0;
-  const sessions =
-    !isExampleMode
-      ? data.recentSessions
-      : [
-          {
-            id: "example-session",
-            sessionDate: "2026-05-01",
-            className: "예시 수업",
-            villageName: "예시 마을",
-            programName: "예시 사업",
-            teacherName: "예시선생",
-            teacherEmail: null,
-            snapshotCount: 0,
-            submittedAt: null,
-          },
-        ];
-  
-  // URL 파라미터에서 sessionId가 있으면 해당 세션 선택, 없으면 첫 번째 세션 선택
-  const initialSessionId = urlSessionId && sessions.some(s => s.id === urlSessionId) 
-    ? urlSessionId 
-    : sessions[0].id;
-  const [selectedSessionId, setSelectedSessionId] = useState(initialSessionId);
-  const selectedSession =
-    sessions.find((session) => session.id === selectedSessionId) ?? sessions[0];
-  const selectedManagement = sessionManagementRecords.find(
-    (record) => record.id === selectedSession.id,
-  );
-  const selectedTeacherAssignment = data.teacherAssignments.find(
-      (assignment) =>
-        assignment.className === selectedSession.className &&
-        (assignment.teacherName === selectedSession.teacherName ||
-          assignment.teacherEmail === selectedSession.teacherEmail),
-    ) ?? data.teacherAssignments[0];
-  const selectedTeacherValue =
-    selectedManagement?.teacherId ?? selectedTeacherAssignment?.teacherId ?? "";
-  const teacherOptions = selectedManagement?.teachers.length
-    ? selectedManagement.teachers.map((teacher) => ({
-        id: teacher.userId,
-        label: teacher.displayName ?? teacher.email,
-      }))
-    : data.teacherAssignments.map((assignment) => ({
-        id: assignment.teacherId,
-        label: assignment.teacherName ?? assignment.teacherEmail,
-      }));
-  const latestActivity =
-    dashboard.recentUpdates[0] ??
-    dashboard.recentSubmissions[0] ??
-    dashboard.pendingSessions[0];
-  const totalSessions = dashboard.submissionOverview.totalSessions;
-  const visibleParticipants = selectedManagement?.snapshots ?? [];
-  const availableParticipants = selectedManagement?.participants ?? [];
-
-  return (
-    <section className="mx-auto mt-10 w-full max-w-[1170px] bg-white px-5 py-9 sm:px-[62px] sm:py-[70px]">
-      <p className="mb-3 text-right text-base font-semibold text-[#555555] sm:text-[20px]">
-        세션 총 {totalSessions}개
+    <div className={cardClassName}>
+      <p className="text-[11px] font-bold text-[var(--color-text-secondary)]">
+        {label}
       </p>
-
-      <div className="grid gap-3">
-        {sessions.map((session) => {
-          const isSelected = session.id === selectedSession.id;
-
-          return (
-            <button
-              key={session.id}
-              type="button"
-              aria-pressed={isSelected}
-              onClick={() => setSelectedSessionId(session.id)}
-              className={`flex min-h-[63px] w-full items-center justify-between border-2 px-4 text-left text-[22px] font-semibold text-black shadow-[0_4px_4px_rgba(0,0,0,0.18)] transition hover:-translate-y-0.5 sm:px-6 sm:text-[25px] ${
-                isSelected
-                  ? "border-[#555555] bg-white"
-                  : "border-[#fcce00] bg-[#fffdf8]"
-              }`}
-            >
-              <span>{session.className}</span>
-              <span className="text-2xl leading-none text-black">⌄</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <p className="mt-3 text-[18px] font-semibold text-[#c5a100] sm:text-[20px]">
-        {formatSessionDate(selectedSession.sessionDate)} ·{" "}
-        {selectedSession.programName} · {selectedSession.villageName}
+      <p className="mt-2 text-[24px] font-extrabold leading-none text-[var(--color-text-primary)]">
+        {value}
       </p>
-
-      <div className="mt-6 grid gap-9 lg:grid-cols-2 lg:gap-[41px]">
-        <form action={teacherAssignmentAction} className="min-h-[248px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:min-h-[353px] sm:px-7">
-          <h2 className="text-[23px] font-extrabold text-black sm:text-[25px]">
-            강사 할당
-          </h2>
-          <input type="hidden" name="sessionId" value={selectedSession.id} />
-          <select
-            aria-label="강사 선택"
-            name="teacherId"
-            value={selectedTeacherId || selectedManagement?.teacherId || selectedTeacherAssignment?.teacherId || ""}
-            onChange={(e) => setSelectedTeacherId(e.target.value)}
-            className="mt-5 h-[52px] w-full rounded-[8px] border border-[#555555] bg-white px-4 text-[18px] font-semibold text-black outline-none sm:h-[63px] sm:text-[23px]"
-          >
-            {teacherOptions.length ? (
-              teacherOptions.map((teacher) => (
-                <option key={teacher.id} value={teacher.id}>
-                  {teacher.label}
-                </option>
-              ))
-            ) : (
-              <option value="">예시선생</option>
-            )}
-          </select>
-          <button type="submit" className="mt-5 h-[52px] w-full rounded-[25px] border border-[#fcce00] bg-[#ffec1d] text-[20px] font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.25)] sm:h-[63px] sm:text-[23px]">
-            강사 저장
-          </button>
-          <Feedback state={teacherAssignmentState} />
-        </form>
-
-        <section className="min-h-[248px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:min-h-[353px] sm:px-7">
-          <h2 className="text-[23px] font-extrabold text-black sm:text-[25px]">
-            세션 상태
-          </h2>
-          <p className="mt-5 rounded-[25px] bg-[#f6f1e8] px-5 py-4 text-[18px] font-semibold text-black sm:text-[23px]">
-            {selectedSession.submittedAt ? "제출 완료" : "아직 제출 전"}
-          </p>
-          <p className="mt-5 rounded-[25px] bg-[#f6f1e8] px-5 py-4 text-[18px] font-semibold text-black sm:text-[23px]">
-            최근 변경:{" "}
-            {latestActivity
-              ? formatDateTimeLabel(latestActivity.updatedAt)
-              : "5월 2일 오전 01:21"}
-          </p>
-          <Link
-            href={`/records/${selectedSession.id}`}
-            className="mt-5 flex h-[52px] w-full items-center justify-center rounded-[25px] border border-[#555555] bg-white text-[20px] font-extrabold text-black sm:h-[63px] sm:text-[23px]"
-          >
-            기록 상세 보기
-          </Link>
-        </section>
-      </div>
-
-      <section className="mt-[38px] rounded-[20px] border-2 border-[#fcce00] bg-white px-5 py-6 sm:px-7">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-[23px] font-extrabold text-black sm:text-[25px]">
-            세션 참여자
-          </h2>
-          <button
-            type="button"
-            aria-label="참여자 추가"
-            disabled={isExampleMode}
-            onClick={() => setIsAddPanelOpen((isOpen) => !isOpen)}
-            className="flex size-9 items-center justify-center rounded-full border-2 border-[#fcce00] bg-white text-[28px] font-extrabold leading-none text-black transition hover:bg-[#ffec1d] focus-visible:bg-[#ffec1d] focus-visible:outline-none disabled:cursor-not-allowed disabled:border-[#d8cdbb] disabled:text-[#9d9a95] disabled:hover:bg-white"
-          >
-            <span aria-hidden="true">+</span>
-          </button>
-        </div>
-
-        {isExampleMode ? (
-          <p className="mt-4 rounded-[18px] bg-[#fff9db] px-4 py-3 text-[16px] font-semibold text-[#8f7700]">
-            세션을 먼저 만든 뒤 참여자를 한 명씩 추가할 수 있습니다.
-          </p>
-        ) : null}
-
-        {isAddPanelOpen ? (
-          <div className="mt-5 grid gap-4 rounded-[20px] bg-[#fffdf8] p-4 lg:grid-cols-2">
-            <form action={existingParticipantAction} className="grid gap-3">
-              <input type="hidden" name="sessionId" value={selectedSession.id} />
-              <select
-                aria-label="기존 참여자 선택"
-                name="participantId"
-                className="h-[52px] rounded-[14px] border border-[#555555] bg-white px-4 text-base font-semibold text-black outline-none"
-              >
-                <option value="">참여자 선택</option>
-                {availableParticipants.map((participant) => (
-                  <option key={participant.id} value={participant.id}>
-                    {participant.fullName}
-                    {participant.note ? ` · ${participant.note}` : ""}
-                  </option>
-                ))}
-              </select>
-              <button className="h-[52px] rounded-[25px] border border-[#fcce00] bg-[#ffec1d] text-base font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.18)]">
-                기존 참여자 추가
-              </button>
-              <Feedback state={existingParticipantState} />
-            </form>
-
-            <form action={newParticipantAction} className="grid gap-3">
-              <input type="hidden" name="sessionId" value={selectedSession.id} />
-              <input
-                name="fullName"
-                placeholder="예: 홍길동"
-                className="h-[52px] rounded-[14px] border border-[#555555] bg-white px-4 text-base font-semibold text-black outline-none"
-              />
-              <textarea
-                name="note"
-                placeholder="참여자 메모"
-                className="min-h-[82px] rounded-[14px] border border-[#555555] bg-white px-4 py-3 text-base font-semibold text-black outline-none"
-              />
-              <button className="h-[52px] rounded-[25px] border border-[#fcce00] bg-[#ffec1d] text-base font-extrabold text-black shadow-[0_4px_4px_rgba(0,0,0,0.18)]">
-                새 참여자 추가
-              </button>
-              <Feedback state={newParticipantState} />
-            </form>
-          </div>
-        ) : null}
-
-        {visibleParticipants.length ? (
-          <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-            {visibleParticipants.map((participant) => (
-              <div
-                key={participant.id}
-                className="relative flex min-h-[106px] flex-col items-center justify-center rounded-[18px] bg-[#f6f1e8] px-4 py-5 text-center sm:min-h-[125px] sm:rounded-[25px]"
-              >
-                <form action={removeParticipantAction}>
-                  <input type="hidden" name="sessionId" value={selectedSession.id} />
-                  <input type="hidden" name="snapshotId" value={participant.id} />
-                  <button
-                    aria-label={`${participant.fullName} 제거`}
-                    disabled={!selectedManagement}
-                    className="absolute right-3 top-3 flex size-[16px] items-center justify-center rounded-full bg-[#ff4b4b] text-[12px] font-bold leading-none text-white transition hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#ff4b4b]"
-                  >
-                    -
-                  </button>
-                </form>
-                <p className="text-[21px] font-extrabold text-black sm:text-[23px]">
-                  {participant.fullName}
-                </p>
-                <p className="mt-3 text-[16px] font-medium text-[#555555] sm:text-[20px]">
-                  {participant.attendanceStatus ?? "미입력"} ·{" "}
-                  {participant.note ?? "메모 없음"}
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="mt-5 rounded-[18px] bg-[#f6f1e8] px-4 py-8 text-center text-[18px] font-semibold text-[#555555]">
-            아직 세션 참여자가 없습니다.
-          </p>
-        )}
-        <Feedback state={removeParticipantState} />
-      </section>
-    </section>
+    </div>
   );
 }
 
 export function DashboardScreen({
   data,
   dashboard,
-  sessionManagementRecords,
-  activeView = "actions",
 }: {
   data: SessionDashboardData;
   dashboard: DashboardQueryData;
-  sessionManagementRecords?: SessionManagementRecord[];
+  sessionManagementRecords?: unknown[];
   activeView?: "actions" | "status";
 }) {
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [selectedSessionId, setSelectedSessionId] = useState(
+    data.recentSessions[0]?.id ?? "",
+  );
+  const selectedSession =
+    data.recentSessions.find((session) => session.id === selectedSessionId) ??
+    data.recentSessions[0] ??
+    null;
+  const timeline = useMemo(
+    () => [...dashboard.recentSubmissions, ...dashboard.recentUpdates].slice(0, 5),
+    [dashboard.recentSubmissions, dashboard.recentUpdates],
+  );
+
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-[#f6f1e8] px-4 pb-8 sm:px-8">
-      <div className="mx-auto mt-8 w-full max-w-[1347px] rounded-[34px] bg-[#fffdf8] px-5 py-10 shadow-[0_8px_28px_rgba(60,44,20,0.04)] sm:mt-10 sm:rounded-[50px] sm:px-14 sm:py-12 lg:min-h-[760px]">
-        <DashboardTitle />
-        <DashboardTabs activeView={activeView} />
-        {activeView === "actions" ? (
-          <NextActionsView data={data} />
-        ) : (
-          <StatusSummaryView
-            data={data}
-            dashboard={dashboard}
-            sessionManagementRecords={sessionManagementRecords}
-          />
-        )}
-      </div>
-    </main>
+    <div className="flex flex-col gap-5">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+        <div>
+          <p className="text-[12px] font-bold text-[var(--color-text-secondary)]">
+            {formatToday()}
+          </p>
+          <h1 className="mt-1 text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
+            안녕하세요, 운영자님
+          </h1>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsCreateOpen(true)}
+          className={primaryButtonClassName}
+        >
+          수업 일정 만들기
+        </button>
+      </header>
+
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard label="진행 중 사업" value={data.programs.length} />
+        <StatCard label="이번 달 일정" value={dashboard.submissionOverview.totalSessions} />
+        <StatCard
+          label="미제출 일지"
+          value={dashboard.submissionOverview.pendingSessions}
+        />
+        <StatCard label="누적 참여자" value={data.participants.length} />
+      </section>
+
+      <section className="grid gap-5 lg:grid-cols-[minmax(0,1.35fr)_minmax(320px,0.65fr)]">
+        <div className={cardClassName}>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-[16px] font-bold text-[var(--color-text-primary)]">
+              수업 일정
+            </h2>
+            <Link href="/records" className={secondaryButtonClassName}>
+              서류·기록
+            </Link>
+          </div>
+          <div className="mt-4 grid gap-2">
+            {data.recentSessions.length ? (
+              data.recentSessions.map((session) => (
+                <button
+                  key={session.id}
+                  type="button"
+                  aria-pressed={selectedSession?.id === session.id}
+                  onClick={() => setSelectedSessionId(session.id)}
+                  className={`rounded-[14px] border px-4 py-3 text-left transition ${
+                    selectedSession?.id === session.id
+                      ? "border-[var(--color-accent)] bg-[var(--color-accent-surface)]"
+                      : "border-[var(--color-border)] bg-white"
+                  }`}
+                >
+                  <span className="block text-[13px] font-bold text-[var(--color-text-primary)]">
+                    {session.className}
+                  </span>
+                  <span className="mt-1 block text-[12px] font-medium text-[var(--color-text-secondary)]">
+                    {formatSessionDate(session.sessionDate)} · {session.programName} ·{" "}
+                    {session.villageName}
+                  </span>
+                </button>
+              ))
+            ) : (
+              <p className="rounded-[14px] bg-[var(--color-surface-alt)] px-4 py-8 text-center text-[13px] font-medium text-[var(--color-text-secondary)]">
+                아직 만들어진 수업 일정이 없습니다.
+              </p>
+            )}
+          </div>
+        </div>
+
+        <aside className={cardClassName}>
+          <h2 className="text-[16px] font-bold text-[var(--color-text-primary)]">
+            선택한 일정
+          </h2>
+          {selectedSession ? (
+            <div className="mt-4 grid gap-3 text-[13px] font-medium text-[var(--color-text-secondary)]">
+              <p className="text-[18px] font-extrabold text-[var(--color-text-primary)]">
+                {selectedSession.className}
+              </p>
+              <p>{selectedSession.programName}</p>
+              <p>{selectedSession.villageName}</p>
+              <p>
+                담당 강사:{" "}
+                {selectedSession.teacherName ??
+                  selectedSession.teacherEmail ??
+                  "미배정"}
+              </p>
+              <p>출석 대상 {selectedSession.snapshotCount}명</p>
+              <Link
+                href={`/dashboard/sessions/${selectedSession.id}`}
+                className={primaryButtonClassName}
+              >
+                수업 일정 관리
+              </Link>
+            </div>
+          ) : (
+            <p className="mt-4 text-[13px] font-medium text-[var(--color-text-secondary)]">
+              왼쪽에서 일정을 선택해 주세요.
+            </p>
+          )}
+        </aside>
+      </section>
+
+      <section className={cardClassName}>
+        <h2 className="text-[16px] font-bold text-[var(--color-text-primary)]">
+          최근 제출 및 업데이트
+        </h2>
+        <div className="mt-4 grid gap-2">
+          {timeline.length ? (
+            timeline.map((activity) => (
+              <Link
+                key={`${activity.id}-${activity.updatedAt.toISOString()}`}
+                href={`/records/${activity.id}`}
+                className="rounded-[14px] border border-[var(--color-border)] bg-white px-4 py-3"
+              >
+                <span className="block text-[13px] font-bold text-[var(--color-text-primary)]">
+                  {activity.className}
+                </span>
+                <span className="mt-1 block text-[12px] font-medium text-[var(--color-text-secondary)]">
+                  {activity.programName} · {activity.villageName}
+                </span>
+              </Link>
+            ))
+          ) : (
+            <p className="text-[13px] font-medium text-[var(--color-text-secondary)]">
+              아직 최근 제출이나 업데이트가 없습니다.
+            </p>
+          )}
+        </div>
+      </section>
+
+      {isCreateOpen ? (
+        <ScheduleCreateModal data={data} onClose={() => setIsCreateOpen(false)} />
+      ) : null}
+    </div>
   );
 }

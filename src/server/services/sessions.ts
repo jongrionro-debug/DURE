@@ -604,6 +604,7 @@ export async function listSessionDashboardData(organizationId: string) {
     classRows,
     teacherAssignmentRows,
     recentSessionRows,
+    participantRows,
   ] = await Promise.all([
     db
       .select({
@@ -683,6 +684,16 @@ export async function listSessionDashboardData(organizationId: string) {
       )
       .orderBy(desc(sessions.sessionDate))
       .limit(8),
+    db
+      .select({
+        id: participants.id,
+        fullName: participants.fullName,
+        note: participants.note,
+        villageId: participants.villageId,
+      })
+      .from(participants)
+      .where(eq(participants.organizationId, organizationId))
+      .orderBy(asc(participants.fullName)),
   ]);
 
   return {
@@ -691,6 +702,7 @@ export async function listSessionDashboardData(organizationId: string) {
     classes: classRows,
     teacherAssignments: teacherAssignmentRows,
     recentSessions: recentSessionRows,
+    participants: participantRows,
   };
 }
 
