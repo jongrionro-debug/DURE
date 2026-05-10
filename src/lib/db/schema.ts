@@ -183,6 +183,9 @@ export const participants = pgTable(
     organizationId: uuid("organization_id")
       .notNull()
       .references(() => organizations.id, { onDelete: "cascade" }),
+    villageId: uuid("village_id").references(() => villages.id, {
+      onDelete: "set null",
+    }),
     classId: uuid("class_id").references(() => classes.id, {
       onDelete: "set null",
     }),
@@ -199,6 +202,7 @@ export const participants = pgTable(
     organizationIdx: index("participants_organization_idx").on(
       table.organizationId,
     ),
+    villageIdx: index("participants_village_idx").on(table.villageId),
     classIdx: index("participants_class_idx").on(table.classId),
     organizationNameUnique: uniqueIndex(
       "participants_organization_name_unique",
@@ -491,6 +495,10 @@ export const participantsRelations = relations(participants, ({ one, many }) => 
   organization: one(organizations, {
     fields: [participants.organizationId],
     references: [organizations.id],
+  }),
+  village: one(villages, {
+    fields: [participants.villageId],
+    references: [villages.id],
   }),
   class: one(classes, {
     fields: [participants.classId],

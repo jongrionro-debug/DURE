@@ -9,6 +9,8 @@ import {
   lessonJournals,
   organizationInvites,
   organizationRoleEnum,
+  participants,
+  participantsRelations,
   sessionParticipantSnapshots,
   sessions,
   teacherAssignments,
@@ -58,5 +60,11 @@ describe("db schema helpers", () => {
     expect(attendanceRecords.organizationId.name).toBe("organization_id");
     expect(lessonJournals.organizationId.name).toBe("organization_id");
     expect(attachments.organizationId.name).toBe("organization_id");
+  });
+
+  it("stores participants by village while keeping class compatibility", () => {
+    expect(participants.villageId.name).toBe("village_id");
+    expect(participants.classId.name).toBe("class_id");
+    expect(participantsRelations).toBeDefined();
   });
 });
