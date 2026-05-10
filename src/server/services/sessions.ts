@@ -3,6 +3,7 @@ import { and, asc, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db/client";
 import {
   classes,
+  participants,
   programs,
   sessionParticipantSnapshots,
   sessions,
@@ -29,6 +30,52 @@ type SessionParticipantRecord = {
 type SessionTeacherAssignmentRecord = {
   classId: string;
   userId: string;
+};
+
+type ClassScheduleRepository = {
+  findVillageByName(
+    organizationId: string,
+    name: string,
+  ): Promise<{ id: string; name: string } | null>;
+  insertVillage(values: {
+    organizationId: string;
+    name: string;
+  }): Promise<{ id: string; name: string }>;
+  findProgramByName(
+    organizationId: string,
+    name: string,
+  ): Promise<{ id: string; name: string } | null>;
+  insertProgram(values: {
+    organizationId: string;
+    name: string;
+    description: string | null;
+  }): Promise<{ id: string; name: string }>;
+  findClassByName(
+    organizationId: string,
+    name: string,
+  ): Promise<{ id: string; name: string; programId: string | null } | null>;
+  insertClass(values: {
+    organizationId: string;
+    name: string;
+    description: string | null;
+    programId: string;
+    villageId: null;
+  }): Promise<{ id: string; name: string; programId: string | null }>;
+  findApprovedTeacherAssignment(
+    organizationId: string,
+    classId: string,
+    teacherId: string,
+  ): Promise<SessionTeacherAssignmentRecord | null>;
+  listVillageParticipants(
+    organizationId: string,
+    villageId: string,
+  ): Promise<SessionParticipantRecord[]>;
+  insertSession(
+    values: typeof sessions.$inferInsert,
+  ): Promise<{ id: string; organizationId: string }>;
+  insertSessionParticipantSnapshots(
+    values: Array<typeof sessionParticipantSnapshots.$inferInsert>,
+  ): Promise<void>;
 };
 
 type TeacherSessionRecord = {
@@ -164,6 +211,136 @@ function createSessionRepository(): SessionRepository {
       }
 
       await db.insert(sessionParticipantSnapshots).values(values);
+    },
+  };
+}
+
+function normalizeMasterName(value: string) {
+  return value.trim().replace(/\s+/g, " ");
+}
+
+function createClassScheduleRepository(): ClassScheduleRepository {
+  const db = getDb();
+
+  return {
+    async findVillageByName(organizationId, name) {
+      const [row] = await db
+        .select({ id: villages.id, name: villages.name })
+        .from(villages)
+        .where(
+          and(
+            eq(villages.organizationId, organizationId),
+            eq(villages.name, name),
+          ),
+        )
+        .limit(1);
+
+      return row ?? null;
+    },
+    async insertVillage(values) {
+      const [row] = await db.insert(villages).values(values).returning({
+        id: villages.id,
+        name: villages.name,
+      });
+
+      return row;
+    },
+    async findProgramByName(organizationId, name) {
+      const [row] = await db
+        .select({ id: programs.id, name: programs.name })
+        .from(programs)
+        .where(
+          and(
+            eq(programs.organizationId, organizationId),
+            eq(programs.name, name),
+          ),
+        )
+        .limit(1);
+
+      return row ?? null;
+    },
+    async insertProgram(values) {
+      const [row] = await db.insert(programs).values(values).returning({
+        id: programs.id,
+        name: programs.name,
+      });
+
+      return row;
+    },
+    async findClassByName(organizationId, name) {
+      const [row] = await db
+        .select({
+          id: classes.id,
+          name: classes.name,
+          programId: classes.programId,
+        })
+        .from(classes)
+        .where(
+          and(
+            eq(classes.organizationId, organizationId),
+            eq(classes.name, name),
+          ),
+        )
+        .limit(1);
+
+      return row ?? null;
+    },
+    async insertClass(values) {
+      const [row] = await db.insert(classes).values(values).returning({
+        id: classes.id,
+        name: classes.name,
+        programId: classes.programId,
+      });
+
+      return row;
+    },
+    async findApprovedTeacherAssignment(organizationId, classId, teacherId) {
+      const [assignment] = await db
+        .select({
+          classId: teacherAssignments.classId,
+          userId: teacherAssignments.userId,
+        })
+        .from(teacherAssignments)
+        .where(
+          and(
+            eq(teacherAssignments.organizationId, organizationId),
+            eq(teacherAssignments.classId, classId),
+            eq(teacherAssignments.userId, teacherId),
+          ),
+        )
+        .limit(1);
+
+      return assignment ?? null;
+    },
+    async listVillageParticipants(organizationId, villageId) {
+      return db
+        .select({
+          id: participants.id,
+          organizationId: participants.organizationId,
+          fullName: participants.fullName,
+          note: participants.note,
+        })
+        .from(participants)
+        .where(
+          and(
+            eq(participants.organizationId, organizationId),
+            eq(participants.villageId, villageId),
+          ),
+        )
+        .orderBy(asc(participants.fullName));
+    },
+    async insertSession(values) {
+      const [session] = await db.insert(sessions).values(values).returning({
+        id: sessions.id,
+        organizationId: sessions.organizationId,
+      });
+
+      return session;
+    },
+    async insertSessionParticipantSnapshots(values) {
+      if (values.length) {
+        await db.insert(sessionParticipantSnapshots).values(values);
+      }
     },
   };
 }
@@ -327,6 +504,94 @@ export async function createSessionRecord(
   return {
     sessionId: session.id,
     snapshotCount: 0,
+  };
+}
+
+export async function createClassScheduleRecord(
+  input: {
+    organizationId: string;
+    villageName: string;
+    programName: string;
+    className: string;
+    teacherId?: string | null;
+    sessionDate: string;
+    excludedParticipantIds?: string[];
+  },
+  repository: ClassScheduleRepository = createClassScheduleRepository(),
+) {
+  const villageName = normalizeMasterName(input.villageName);
+  const programName = normalizeMasterName(input.programName);
+  const className = normalizeMasterName(input.className);
+
+  const village =
+    (await repository.findVillageByName(input.organizationId, villageName)) ??
+    (await repository.insertVillage({
+      organizationId: input.organizationId,
+      name: villageName,
+    }));
+  const program =
+    (await repository.findProgramByName(input.organizationId, programName)) ??
+    (await repository.insertProgram({
+      organizationId: input.organizationId,
+      name: programName,
+      description: null,
+    }));
+  const existingClass = await repository.findClassByName(
+    input.organizationId,
+    className,
+  );
+
+  if (existingClass?.programId && existingClass.programId !== program.id) {
+    throw new Error("같은 이름의 프로그램이 다른 사업에 이미 연결되어 있습니다.");
+  }
+
+  const classRecord =
+    existingClass ??
+    (await repository.insertClass({
+      organizationId: input.organizationId,
+      name: className,
+      description: null,
+      programId: program.id,
+      villageId: null,
+    }));
+
+  if (input.teacherId) {
+    const teacherAssignment = await repository.findApprovedTeacherAssignment(
+      input.organizationId,
+      classRecord.id,
+      input.teacherId,
+    );
+
+    if (!teacherAssignment) {
+      throw new Error("선택한 강사가 이 프로그램에 배정되어 있지 않습니다.");
+    }
+  }
+
+  const session = await repository.insertSession({
+    organizationId: input.organizationId,
+    villageId: village.id,
+    programId: program.id,
+    classId: classRecord.id,
+    teacherId: input.teacherId || null,
+    sessionDate: input.sessionDate,
+  });
+
+  const excluded = new Set(input.excludedParticipantIds ?? []);
+  const participantsForSnapshot = (
+    await repository.listVillageParticipants(input.organizationId, village.id)
+  ).filter((participant) => !excluded.has(participant.id));
+
+  await repository.insertSessionParticipantSnapshots(
+    buildSessionParticipantSnapshots(
+      session.id,
+      input.organizationId,
+      participantsForSnapshot,
+    ),
+  );
+
+  return {
+    sessionId: session.id,
+    snapshotCount: participantsForSnapshot.length,
   };
 }
 

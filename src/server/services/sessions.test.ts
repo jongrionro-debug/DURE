@@ -1,5 +1,6 @@
 import {
   buildSessionParticipantSnapshots,
+  createClassScheduleRecord,
   createSessionRecord,
   filterTeacherAssignedSessions,
   getTeacherSessionWorkspace,
@@ -162,6 +163,71 @@ describe("session services", () => {
       },
     ]);
     expect(insertedSnapshots).toEqual([]);
+  });
+
+  it("creates a class schedule by reusing master records and snapshotting village participants", async () => {
+    const insertedSnapshots: unknown[] = [];
+    const repository = {
+      findVillageByName: async () => ({ id: "village-1", name: "다도리" }),
+      insertVillage: async () => {
+        throw new Error("should reuse village");
+      },
+      findProgramByName: async () => ({ id: "program-1", name: "문해 사업" }),
+      insertProgram: async () => {
+        throw new Error("should reuse program");
+      },
+      findClassByName: async () => ({
+        id: "class-1",
+        name: "스마트폰 기초",
+        programId: "program-1",
+      }),
+      insertClass: async () => {
+        throw new Error("should reuse class");
+      },
+      findApprovedTeacherAssignment: async () => null,
+      listVillageParticipants: async () => [
+        {
+          id: "participant-1",
+          organizationId: "org-1",
+          fullName: "김영희",
+          note: null,
+        },
+        {
+          id: "participant-2",
+          organizationId: "org-1",
+          fullName: "박미자",
+          note: "불참 예정",
+        },
+      ],
+      insertSession: async () => ({ id: "session-1", organizationId: "org-1" }),
+      insertSessionParticipantSnapshots: async (values: unknown[]) => {
+        insertedSnapshots.push(...values);
+      },
+    };
+
+    const result = await createClassScheduleRecord(
+      {
+        organizationId: "org-1",
+        sessionDate: "2026-05-20",
+        villageName: "다도리",
+        programName: "문해 사업",
+        className: "스마트폰 기초",
+        teacherId: null,
+        excludedParticipantIds: ["participant-2"],
+      },
+      repository,
+    );
+
+    expect(result).toEqual({ sessionId: "session-1", snapshotCount: 1 });
+    expect(insertedSnapshots).toMatchObject([
+      {
+        sessionId: "session-1",
+        organizationId: "org-1",
+        participantId: "participant-1",
+        fullName: "김영희",
+        rosterOrder: 0,
+      },
+    ]);
   });
 
   it("rejects session creation when the teacher assignment is outside scope", async () => {

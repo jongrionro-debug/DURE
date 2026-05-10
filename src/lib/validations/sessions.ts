@@ -4,11 +4,18 @@ export const sessionCreateSchema = z.object({
   sessionDate: z
     .string()
     .trim()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "세션 날짜를 선택해 주세요."),
-  villageId: z.string().uuid("유효한 마을 id가 필요합니다."),
-  programId: z.string().uuid("유효한 사업 id가 필요합니다."),
-  classId: z.string().uuid("유효한 수업 id가 필요합니다."),
-  teacherId: z.string().uuid("유효한 강사 id가 필요합니다.").optional().or(z.literal("")),
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "진행일을 선택해 주세요."),
+  villageName: z.string().trim().min(2, "마을 이름을 2자 이상 입력해 주세요."),
+  programName: z.string().trim().min(2, "사업 이름을 2자 이상 입력해 주세요."),
+  className: z.string().trim().min(2, "프로그램 이름을 2자 이상 입력해 주세요."),
+  teacherId: z
+    .string()
+    .uuid("유효한 강사 id가 필요합니다.")
+    .optional()
+    .or(z.literal("")),
+  excludedParticipantIds: z
+    .array(z.string().uuid("유효한 참여자 id가 필요합니다."))
+    .default([]),
 });
 
 export const sessionTeacherAssignmentSchema = z.object({

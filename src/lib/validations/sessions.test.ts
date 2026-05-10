@@ -5,40 +5,30 @@ import {
 } from "@/lib/validations/sessions";
 
 describe("session validations", () => {
-  it("accepts a complete session creation payload", () => {
-    expect(
-      sessionCreateSchema.safeParse({
-        sessionDate: "2026-04-15",
-        villageId: "46a87e1a-9918-4ea1-872f-999999999999",
-        programId: "56a87e1a-9918-4ea1-872f-999999999999",
-        classId: "66a87e1a-9918-4ea1-872f-999999999999",
-        teacherId: "76a87e1a-9918-4ea1-872f-999999999999",
-      }).success,
-    ).toBe(true);
-  });
-
-  it("accepts session creation without a teacher assignment", () => {
-    expect(
-      sessionCreateSchema.safeParse({
-        sessionDate: "2026-04-15",
-        villageId: "46a87e1a-9918-4ea1-872f-999999999999",
-        programId: "56a87e1a-9918-4ea1-872f-999999999999",
-        classId: "66a87e1a-9918-4ea1-872f-999999999999",
-        teacherId: "",
-      }).success,
-    ).toBe(true);
-  });
-
-  it("rejects malformed dates and missing ids", () => {
-    const parsed = sessionCreateSchema.safeParse({
-      sessionDate: "2026/04/15",
-      villageId: "",
-      programId: "",
-      classId: "",
+  it("accepts named class schedule creation inputs", () => {
+    const result = sessionCreateSchema.safeParse({
+      sessionDate: "2026-05-20",
+      villageName: "다도리",
+      programName: "문해 사업",
+      className: "스마트폰 기초",
       teacherId: "",
+      excludedParticipantIds: ["11111111-1111-4111-8111-111111111111"],
     });
 
-    expect(parsed.success).toBe(false);
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects missing schedule names", () => {
+    const result = sessionCreateSchema.safeParse({
+      sessionDate: "2026-05-20",
+      villageName: "",
+      programName: "",
+      className: "",
+      teacherId: "",
+      excludedParticipantIds: [],
+    });
+
+    expect(result.success).toBe(false);
   });
 
   it("accepts required attendance rows and lesson journal content", () => {
