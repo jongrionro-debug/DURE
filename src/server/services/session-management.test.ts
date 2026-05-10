@@ -26,6 +26,7 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: null,
         }),
         listSessionSnapshots: async () => [],
@@ -71,6 +72,7 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: null,
         }),
         listSessionSnapshots: async () => [],
@@ -109,6 +111,7 @@ describe("session management services", () => {
             id: "session-1",
             organizationId: "org-1",
             classId: "class-1",
+            villageId: "village-1",
             submittedAt: null,
           }),
           listSessionSnapshots: async () => [],
@@ -139,11 +142,13 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: new Date("2026-04-10T09:00:00.000Z"),
         }),
         findParticipant: async () => ({
           id: "participant-2",
           organizationId: "org-1",
+          villageId: "village-1",
           fullName: "박학생",
           note: "늦게 합류",
         }),
@@ -196,11 +201,13 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: null,
         }),
         findParticipant: async () => ({
           id: "participant-1",
           organizationId: "org-1",
+          villageId: "village-1",
           fullName: "홍길동",
           note: null,
         }),
@@ -247,6 +254,7 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: null,
         }),
         insertParticipant: async (values) => {
@@ -254,6 +262,7 @@ describe("session management services", () => {
           return {
             id: "participant-new",
             organizationId: "org-1",
+            villageId: "village-1",
             fullName: "새학생",
             note: "현장 추가",
           };
@@ -275,7 +284,8 @@ describe("session management services", () => {
     expect(insertedParticipants).toEqual([
       {
         organizationId: "org-1",
-        classId: "class-1",
+        villageId: "village-1",
+        classId: null,
         fullName: "새학생",
         note: "현장 추가",
       },
@@ -290,6 +300,107 @@ describe("session management services", () => {
         rosterOrder: 0,
       },
     ]);
+  });
+
+  it("creates a new participant under the schedule village when adding to a schedule", async () => {
+    const insertedParticipants: unknown[] = [];
+    const repository = {
+      findSession: async () => ({
+        id: "session-1",
+        organizationId: "org-1",
+        classId: "class-1",
+        villageId: "village-1",
+        submittedAt: null,
+      }),
+      listSessionSnapshots: async () => [],
+      insertParticipant: async (values: {
+        organizationId: string;
+        villageId: string | null;
+        classId: string | null;
+        fullName: string;
+        note: string | null;
+      }) => {
+        insertedParticipants.push(values);
+        return {
+          id: "participant-1",
+          organizationId: "org-1",
+          villageId: values.villageId,
+          fullName: values.fullName,
+          note: values.note,
+        };
+      },
+      insertSessionSnapshot: async () => undefined,
+      touchSession: async () => undefined,
+      findApprovedTeacher: async () => null,
+      updateSessionTeacher: async () => undefined,
+      listApprovedTeachers: async () => [],
+      listAvailableParticipants: async () => [],
+      findParticipant: async () => null,
+    };
+
+    await createAndAddParticipantToSession(
+      {
+        organizationId: "org-1",
+        sessionId: "session-1",
+        fullName: "김영희",
+        note: null,
+      },
+      repository,
+    );
+
+    expect(insertedParticipants).toEqual([
+      {
+        organizationId: "org-1",
+        villageId: "village-1",
+        classId: null,
+        fullName: "김영희",
+        note: null,
+      },
+    ]);
+  });
+
+  it("rejects adding an existing participant from another village", async () => {
+    const repository = {
+      findSession: async () => ({
+        id: "session-1",
+        organizationId: "org-1",
+        classId: "class-1",
+        villageId: "village-1",
+        submittedAt: null,
+      }),
+      findParticipant: async () => ({
+        id: "participant-1",
+        organizationId: "org-1",
+        villageId: "village-2",
+        fullName: "김영희",
+        note: null,
+      }),
+      listSessionSnapshots: async () => [],
+      insertSessionSnapshot: async () => {
+        throw new Error("should not add participant from another village");
+      },
+      touchSession: async () => undefined,
+      findApprovedTeacher: async () => null,
+      updateSessionTeacher: async () => undefined,
+      listApprovedTeachers: async () => [],
+      listAvailableParticipants: async () => [],
+      insertParticipant: async () => {
+        throw new Error("not used");
+      },
+    };
+
+    await expect(
+      addExistingParticipantToSession(
+        {
+          organizationId: "org-1",
+          sessionId: "session-1",
+          participantId: "participant-1",
+        },
+        repository,
+      ),
+    ).rejects.toThrow(
+      "선택한 참여자는 이 수업 일정의 마을에 속해 있지 않습니다.",
+    );
   });
 
   it("removes a participant snapshot from a session and touches the session", async () => {
@@ -307,6 +418,7 @@ describe("session management services", () => {
           id: "session-1",
           organizationId: "org-1",
           classId: "class-1",
+          villageId: "village-1",
           submittedAt: null,
         }),
         deleteSessionSnapshot: async (values) => {

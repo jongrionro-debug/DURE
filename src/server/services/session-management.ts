@@ -23,12 +23,14 @@ type ManagedSession = {
   id: string;
   organizationId: string;
   classId: string;
+  villageId: string;
   submittedAt: Date | null;
 };
 
 type SessionParticipant = {
   id: string;
   organizationId: string;
+  villageId: string | null;
   fullName: string;
   note: string | null;
 };
@@ -59,6 +61,7 @@ export type SessionManagementRepository = {
   listApprovedTeachers(organizationId: string): Promise<ApprovedTeacher[]>;
   listAvailableParticipants(
     organizationId: string,
+    villageId: string,
   ): Promise<SessionParticipant[]>;
   findParticipant(
     organizationId: string,
@@ -66,6 +69,7 @@ export type SessionManagementRepository = {
   ): Promise<SessionParticipant | null>;
   insertParticipant(values: {
     organizationId: string;
+    villageId: string | null;
     classId: string | null;
     fullName: string;
     note: string | null;
@@ -100,6 +104,7 @@ function createSessionManagementRepository(): SessionManagementRepository {
           id: sessions.id,
           organizationId: sessions.organizationId,
           classId: sessions.classId,
+          villageId: sessions.villageId,
           submittedAt: sessions.submittedAt,
         })
         .from(sessions)
@@ -166,16 +171,22 @@ function createSessionManagementRepository(): SessionManagementRepository {
         )
         .orderBy(asc(users.email));
     },
-    async listAvailableParticipants(organizationId) {
+    async listAvailableParticipants(organizationId, villageId) {
       return db
         .select({
           id: participants.id,
           organizationId: participants.organizationId,
+          villageId: participants.villageId,
           fullName: participants.fullName,
           note: participants.note,
         })
         .from(participants)
-        .where(eq(participants.organizationId, organizationId))
+        .where(
+          and(
+            eq(participants.organizationId, organizationId),
+            eq(participants.villageId, villageId),
+          ),
+        )
         .orderBy(asc(participants.fullName));
     },
     async findParticipant(organizationId, participantId) {
@@ -183,6 +194,7 @@ function createSessionManagementRepository(): SessionManagementRepository {
         .select({
           id: participants.id,
           organizationId: participants.organizationId,
+          villageId: participants.villageId,
           fullName: participants.fullName,
           note: participants.note,
         })
@@ -204,6 +216,7 @@ function createSessionManagementRepository(): SessionManagementRepository {
         .returning({
           id: participants.id,
           organizationId: participants.organizationId,
+          villageId: participants.villageId,
           fullName: participants.fullName,
           note: participants.note,
         });
@@ -329,6 +342,10 @@ export async function addExistingParticipantToSession(
     throw new Error("선택한 참여자를 찾을 수 없습니다.");
   }
 
+  if (participant.villageId !== session.villageId) {
+    throw new Error("선택한 참여자는 이 수업 일정의 마을에 속해 있지 않습니다.");
+  }
+
   if (
     snapshots.some((snapshot) => snapshot.participantId === input.participantId)
   ) {
@@ -368,7 +385,8 @@ export async function createAndAddParticipantToSession(
 
   const participant = await repository.insertParticipant({
     organizationId: input.organizationId,
-    classId: session.classId,
+    villageId: session.villageId,
+    classId: null,
     fullName: input.fullName.trim(),
     note: input.note?.trim() || null,
   });
@@ -426,6 +444,7 @@ export async function getOperatorSessionManagement(
       id: sessions.id,
       sessionDate: sessions.sessionDate,
       classId: sessions.classId,
+      villageId: sessions.villageId,
       className: classes.name,
       villageName: villages.name,
       programName: programs.name,
@@ -450,7 +469,7 @@ export async function getOperatorSessionManagement(
   const repository = createSessionManagementRepository();
   const [teachers, participantsList, snapshots] = await Promise.all([
     repository.listApprovedTeachers(organizationId),
-    repository.listAvailableParticipants(organizationId),
+    repository.listAvailableParticipants(organizationId, session.villageId),
     repository.listSessionSnapshots(organizationId, sessionId),
   ]);
   const snapshotParticipantIds = new Set(
