@@ -46,6 +46,14 @@ type ActionState = {
 };
 
 const initialState: ActionState = {};
+const panelClassName =
+  "rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-5 py-[18px]";
+const inputClassName =
+  "h-9 rounded-[10px] border border-[var(--color-border)] bg-white px-3 text-[13px] font-medium text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[rgba(81,123,246,0.15)]";
+const primaryButtonClassName =
+  "rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white";
+const secondaryButtonClassName =
+  "rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]";
 
 function formatDateLabel(value: string) {
   return new Intl.DateTimeFormat("ko-KR", {
@@ -71,7 +79,7 @@ function formatDateTimeLabel(value: Date | null) {
 
 function Feedback({ state }: { state: ActionState }) {
   return state.message ? (
-    <p className="mt-4 rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3 text-sm leading-6 text-[var(--color-text-secondary)]">
+    <p className="mt-4 rounded-[10px] bg-[var(--color-surface-alt)] px-3 py-2 text-[13px] leading-6 text-[var(--color-text-secondary)]">
       {state.message}
     </p>
   ) : null;
@@ -87,11 +95,11 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 shadow-panel">
-      <p className="text-lg font-semibold tracking-[-0.03em] text-[var(--color-text-primary)]">
+    <section className={panelClassName}>
+      <p className="text-[16px] font-bold text-[var(--color-text-primary)]">
         {title}
       </p>
-      <p className="mt-1 text-sm leading-6 text-[var(--color-text-secondary)]">
+      <p className="mt-1 text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
         {description}
       </p>
       <div className="mt-5">{children}</div>
@@ -122,38 +130,37 @@ export function SessionManagementScreen({
   ).length;
 
   return (
-    <main className="flex min-h-screen flex-1 flex-col bg-[var(--color-background)]">
-      <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10 lg:py-10">
-        <header className="rounded-[28px] border border-[var(--color-border)] bg-[var(--color-surface)] p-6 shadow-panel sm:p-8">
+    <main className="flex flex-col gap-5">
+      <div className="flex w-full flex-col gap-5">
+        <header className={panelClassName}>
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-border)] bg-[var(--color-surface-alt)] px-4 py-2 text-sm font-semibold text-[var(--color-text-primary)] transition hover:-translate-y-0.5"
+            className={secondaryButtonClassName}
           >
-            <span aria-hidden="true">&lt;</span>
             대시보드로
           </Link>
-          <p className="mt-5 text-sm font-semibold uppercase tracking-[0.14em] text-[var(--color-text-secondary)]">
-            Session management
+          <p className="mt-5 text-[11px] font-bold text-[var(--color-text-secondary)]">
+            수업 일정 관리
           </p>
-          <h1 className="mt-3 text-4xl font-bold tracking-[-0.05em] text-[var(--color-text-primary)] sm:text-5xl">
+          <h1 className="mt-2 text-[22px] font-extrabold leading-tight text-[var(--color-text-primary)]">
             {session.className}
           </h1>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-[var(--color-text-secondary)]">
+          <p className="mt-3 max-w-3xl text-[13px] font-medium leading-6 text-[var(--color-text-secondary)]">
             {formatDateLabel(session.sessionDate)} · {session.programName} ·{" "}
             {session.villageName}
           </p>
           <div className="mt-5 flex flex-wrap gap-2">
-            <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)]">
+            <span className="rounded-full bg-[var(--color-surface-alt)] px-[10px] py-[3px] text-[10px] font-bold tracking-[0.05em] text-[var(--color-text-secondary)]">
               {session.teacherName ?? session.teacherEmail ?? "강사 미할당"}
             </span>
-            <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)]">
-              참여자 {session.snapshots.length}명
+            <span className="rounded-full bg-[var(--color-surface-alt)] px-[10px] py-[3px] text-[10px] font-bold tracking-[0.05em] text-[var(--color-text-secondary)]">
+              출석 대상 {session.snapshots.length}명
             </span>
-            <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)]">
+            <span className="rounded-full bg-[var(--color-surface-alt)] px-[10px] py-[3px] text-[10px] font-bold tracking-[0.05em] text-[var(--color-text-secondary)]">
               {session.submittedAt ? "제출 완료" : "제출 전"}
             </span>
             {missingAttendanceCount ? (
-              <span className="rounded-full bg-[var(--color-surface-alt)] px-3 py-2 text-xs font-semibold text-[var(--color-text-secondary)]">
+              <span className="rounded-full bg-[var(--color-surface-alt)] px-[10px] py-[3px] text-[10px] font-bold tracking-[0.05em] text-[var(--color-text-secondary)]">
                 출석 미입력 {missingAttendanceCount}명
               </span>
             ) : null}
@@ -163,14 +170,14 @@ export function SessionManagementScreen({
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
           <Panel
             title="강사 할당"
-            description="세션을 먼저 만들고, 담당 강사는 나중에 배정하거나 변경할 수 있습니다."
+            description="수업 일정을 먼저 만들고, 담당 강사는 나중에 배정하거나 변경할 수 있습니다."
           >
             <form action={teacherAction} className="grid gap-3">
               <input type="hidden" name="sessionId" value={session.id} />
               <select
                 name="teacherId"
                 defaultValue={session.teacherId ?? ""}
-                className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+                className={inputClassName}
               >
                 <option value="">강사 미할당</option>
                 {session.teachers.map((teacher) => (
@@ -179,7 +186,7 @@ export function SessionManagementScreen({
                   </option>
                 ))}
               </select>
-              <button className="rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-[var(--color-accent-ink)]">
+              <button className={primaryButtonClassName}>
                 강사 저장
               </button>
             </form>
@@ -187,19 +194,19 @@ export function SessionManagementScreen({
           </Panel>
 
           <Panel
-            title="세션 상태"
+            title="수업 일정 상태"
             description="제출 여부와 최근 변경 시각을 확인하고 기록 상세로 이동합니다."
           >
-            <div className="space-y-3 text-sm leading-6 text-[var(--color-text-secondary)]">
-              <p className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3">
+            <div className="space-y-3 text-[13px] leading-6 text-[var(--color-text-secondary)]">
+              <p className="rounded-[10px] bg-[var(--color-surface-alt)] px-3 py-2">
                 제출 {formatDateTimeLabel(session.submittedAt)}
               </p>
-              <p className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-3">
+              <p className="rounded-[10px] bg-[var(--color-surface-alt)] px-3 py-2">
                 최근 변경 {formatDateTimeLabel(session.updatedAt)}
               </p>
               <Link
                 href={`/records/${session.id}`}
-                className="block rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-center text-sm font-semibold text-[var(--color-text-primary)]"
+                className={`block text-center ${secondaryButtonClassName}`}
               >
                 기록 상세 보기
               </Link>
@@ -207,14 +214,14 @@ export function SessionManagementScreen({
           </Panel>
 
           <Panel
-            title="기존 참여자 추가"
-            description="전체 참여자 명단에 있는 사람을 이 세션 출석 대상에 추가합니다."
+            title="기존 출석 대상자 추가"
+            description="마을 참여자 명단에 있는 사람을 이 수업 일정의 출석 대상에 추가합니다."
           >
             <form action={existingParticipantAction} className="grid gap-3">
               <input type="hidden" name="sessionId" value={session.id} />
               <select
                 name="participantId"
-                className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+                className={inputClassName}
               >
                 <option value="">참여자 선택</option>
                 {session.participants.map((participant) => (
@@ -224,31 +231,31 @@ export function SessionManagementScreen({
                   </option>
                 ))}
               </select>
-              <button className="rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-[var(--color-accent-ink)]">
-                기존 참여자 추가
+              <button className={primaryButtonClassName}>
+                기존 출석 대상자 추가
               </button>
             </form>
             <Feedback state={existingParticipantState} />
           </Panel>
 
           <Panel
-            title="새 참여자 추가"
-            description="전체 참여자 명단에 저장한 뒤 이 세션에도 바로 추가합니다."
+            title="새 출석 대상자 추가"
+            description="마을 참여자 명단에 저장한 뒤 이 수업 일정에도 바로 추가합니다."
           >
             <form action={newParticipantAction} className="grid gap-3">
               <input type="hidden" name="sessionId" value={session.id} />
               <input
                 name="fullName"
                 placeholder="예: 홍길동"
-                className="rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+                className={inputClassName}
               />
               <textarea
                 name="note"
                 placeholder="참여자 메모"
-                className="min-h-24 rounded-[18px] border border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-3 text-sm text-[var(--color-text-primary)] outline-none"
+                className={`${inputClassName} min-h-24 resize-y py-3`}
               />
-              <button className="rounded-full bg-[var(--color-accent)] px-4 py-3 text-sm font-semibold text-[var(--color-accent-ink)]">
-                새 참여자 추가
+              <button className={primaryButtonClassName}>
+                새 출석 대상자 추가
               </button>
             </form>
             <Feedback state={newParticipantState} />
@@ -256,7 +263,7 @@ export function SessionManagementScreen({
         </div>
 
         <Panel
-          title="세션 참여자"
+          title="출석 대상"
           description="제출 후 추가된 참여자는 강사가 다시 수정 저장하기 전까지 출석 미입력으로 보입니다."
         >
           <div className="grid gap-3 md:grid-cols-2">
@@ -264,7 +271,7 @@ export function SessionManagementScreen({
               session.snapshots.map((snapshot) => (
                 <div
                   key={snapshot.id}
-                  className="rounded-[20px] bg-[var(--color-surface-alt)] px-4 py-4"
+                  className="rounded-[10px] bg-[var(--color-surface-alt)] px-4 py-4"
                 >
                   <p className="text-sm font-semibold text-[var(--color-text-primary)]">
                     {snapshot.fullName}
@@ -276,8 +283,8 @@ export function SessionManagementScreen({
                 </div>
               ))
             ) : (
-              <p className="rounded-[18px] bg-[var(--color-surface-alt)] px-4 py-4 text-sm leading-6 text-[var(--color-text-secondary)] md:col-span-2">
-                아직 참여자가 없습니다. 강사 제출 전에 참여자를 추가해 주세요.
+              <p className="rounded-[10px] bg-[var(--color-surface-alt)] px-4 py-4 text-sm leading-6 text-[var(--color-text-secondary)] md:col-span-2">
+                아직 출석 대상자가 없습니다. 강사 제출 전에 출석 대상자를 추가해 주세요.
               </p>
             )}
           </div>
