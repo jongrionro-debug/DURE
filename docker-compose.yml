@@ -1,21 +1,21 @@
 services:
   postgres:
     image: postgres:16-alpine
-    container_name: harness_framework_postgres
+    container_name: dure_postgres
     restart: unless-stopped
     environment:
-      POSTGRES_DB: harness_framework
+      POSTGRES_DB: dure
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
     volumes:
-      - harness_framework_postgres_data:/var/lib/postgresql/data
+      - dure_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d harness_framework"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dure"]
       interval: 5s
       timeout: 5s
       retries: 10
 
 volumes:
-  harness_framework_postgres_data:
+  dure_postgres_data:

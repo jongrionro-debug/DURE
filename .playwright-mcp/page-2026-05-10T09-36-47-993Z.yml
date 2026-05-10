@@ -1,0 +1,29 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - generic [ref=e3]:
+      - 'heading "DURE : 두레" [level=1] [ref=e6]':
+        - generic [ref=e7]: DURE
+        - generic [ref=e8]: ": 두레"
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]: E-mail
+          - textbox "E-mail" [ref=e12]:
+            - /placeholder: example1
+        - generic [ref=e14]:
+          - generic [ref=e15]: Password
+          - generic [ref=e16]:
+            - textbox "Password 비밀번호 보이기" [ref=e17]:
+              - /placeholder: "******"
+            - button "비밀번호 보이기" [ref=e18]
+        - generic [ref=e20] [cursor=pointer]:
+          - checkbox "로그인 상태 유지" [checked] [ref=e21]
+          - generic [ref=e23]: 로그인 상태 유지
+        - button "로그인" [ref=e24]
+        - navigation [ref=e25]:
+          - button "비밀번호 찾기" [ref=e26]
+          - generic [ref=e27]: "|"
+          - button "아이디 찾기" [ref=e28]
+          - generic [ref=e29]: "|"
+          - link "회원가입" [ref=e30] [cursor=pointer]:
+            - /url: /signup
+  - alert [ref=e31]

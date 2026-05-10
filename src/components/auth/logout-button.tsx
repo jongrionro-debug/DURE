@@ -43,12 +43,17 @@ export function LogoutButton({
       : "bg-[var(--color-surface)] text-[var(--color-text-primary)]";
 
   if (variant === "compact") {
+    const compactClassName =
+      tone === "accent"
+        ? "rounded-[10px] bg-[var(--color-accent)] px-[14px] py-2 text-[13px] font-bold text-white"
+        : "rounded-[10px] border border-[var(--color-border)] bg-white px-[14px] py-2 text-[13px] font-bold text-[var(--color-text-primary)]";
+
     return (
       <button
         type="button"
         onClick={handleLogout}
         disabled={isPending}
-        className="text-[20px] font-semibold text-[#555555] transition hover:text-black disabled:cursor-not-allowed disabled:opacity-70"
+        className={`${compactClassName} disabled:cursor-not-allowed disabled:opacity-50`}
       >
         {isPending ? "로그아웃 중..." : "로그아웃"}
       </button>

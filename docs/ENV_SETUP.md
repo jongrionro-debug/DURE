@@ -1,6 +1,6 @@
 # 환경변수 및 API 키 준비 가이드
 
-이 문서는 현재 [PRD.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/PRD.md), [ARCHITECTURE.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/ARCHITECTURE.md), [ADR.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/ADR.md)를 기준으로, 구현 전에 준비하면 좋은 환경변수와 API 키를 정리한 문서다.
+이 문서는 현재 [PRD.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/PRD.md), [ARCHITECTURE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/ARCHITECTURE.md), [ADR.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/ADR.md)를 기준으로, 구현 전에 준비하면 좋은 환경변수와 API 키를 정리한 문서다.
 
 ## 한 줄 요약
 
@@ -427,4 +427,4 @@ SUPABASE_SERVICE_ROLE_KEY=
 DATABASE_URL=
 ```
 
-현재 phase 8 로컬 smoke 기준 체크리스트는 `phases/archive/LOCAL_SMOKE_TEST.md`를 함께 참고하는 것을 권장한다.
+로컬 smoke는 `npm install -> npm run db:up -> npm run db:migrate -> npm run dev` 순서로 실행하고, 운영자/강사 핵심 흐름과 blocked 상태를 직접 확인한다.

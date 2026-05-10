@@ -2,7 +2,7 @@ import type { Config } from "drizzle-kit";
 
 const databaseUrl =
   process.env.DATABASE_URL ??
-  "postgresql://postgres:postgres@127.0.0.1:5432/harness_framework";
+  "postgresql://postgres:postgres@127.0.0.1:5432/dure";
 
 export default {
   schema: "./src/lib/db/schema.ts",

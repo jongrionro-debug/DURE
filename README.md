@@ -1,4 +1,4 @@
-# harness_framework
+# dure
 
 이 저장소는 다른 사람이 로컬에서 같은 개발 환경으로 빠르게 붙을 수 있도록 아래 순서대로 세팅하면 된다.
 
@@ -9,7 +9,7 @@
 
 ```bash
 git clone <저장소 주소>
-cd harness_framework
+cd dure
 ```
 
 ## 2. Node.js와 패키지 설치
@@ -43,7 +43,7 @@ cp .env.example .env.local
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/harness_framework
+DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:5432/dure
 ```
 
 설명:
@@ -107,7 +107,7 @@ http://localhost:3000
 
 ```bash
 git clone <저장소 주소>
-cd harness_framework
+cd dure
 npm install
 cp .env.example .env.local
 npm run db:up

@@ -2,11 +2,11 @@
 
 ## 문서 목적
 
-이 문서는 현재 [PRD.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/PRD.md)를 구현하기 위한 `현재 채택 아키텍처`를 정리한다.
+이 문서는 현재 [PRD.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/PRD.md)를 구현하기 위한 `현재 채택 아키텍처`를 정리한다.
 
 - 목표는 빠른 MVP 구현과 이후 다기관 확장을 동시에 버틸 수 있는 구조를 잡는 것이다.
 - 아직 실제 코드베이스가 비어 있거나 초기 상태일 수 있으므로, 이 문서는 현재 구현이 따라야 할 기준 구조를 설명한다.
-- 구체적인 기술 선택 이유는 [ADR.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/ADR.md)에서 관리한다.
+- 구체적인 기술 선택 이유는 [ADR.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/ADR.md)에서 관리한다.
 
 ## 현재 구현 우선순위
 
@@ -381,7 +381,7 @@ phase 6의 create-first 세션 생성과 phase 7의 세션 관리 대시보드�
 
 ## 로컬 검증 기준
 
-phase 5~8 기준 로컬 smoke는 아래 순서를 기본으로 삼는다.
+현재 로컬 smoke는 아래 순서를 기본으로 삼는다.
 
 1. `npm install`
 2. `npm run db:up`
@@ -395,8 +395,6 @@ phase 5~8 기준 로컬 smoke는 아래 순서를 기본으로 삼는다.
 - 참여자 0명 세션에서 강사 제출이 명확히 차단되는지
 - `SUPABASE_ATTACHMENTS_BUCKET`이 없을 때 첨부 기능이 전체 앱을 깨뜨리지 않고 blocked 상태로 안내되는지
 - 승인 대기 멤버가 운영자 승인 전까지 실제 업무 화면에 들어가지 못하는지
-
-현재 로컬 smoke 체크리스트 원본은 `phases/archive/LOCAL_SMOKE_TEST.md`를 기준으로 유지한다.
 
 ## 오픈 이슈
 

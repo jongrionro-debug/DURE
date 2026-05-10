@@ -1,4 +1,4 @@
-# 프로젝트: harness_framework
+# 프로젝트: dure
 
 ## 기술 스택
 - 프레임워크: `Next.js 15 App Router`

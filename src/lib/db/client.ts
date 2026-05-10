@@ -6,18 +6,18 @@ import * as schema from "@/lib/db/schema";
 
 declare global {
   // eslint-disable-next-line no-var
-  var __harnessPool: Pool | undefined;
+  var __durePool: Pool | undefined;
 }
 
 function getPool() {
-  if (!globalThis.__harnessPool) {
+  if (!globalThis.__durePool) {
     const env = getServerEnv();
-    globalThis.__harnessPool = new Pool({
+    globalThis.__durePool = new Pool({
       connectionString: env.DATABASE_URL,
     });
   }
 
-  return globalThis.__harnessPool;
+  return globalThis.__durePool;
 }
 
 export function getDb() {

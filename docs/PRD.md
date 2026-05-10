@@ -2,10 +2,10 @@
 
 ## 문서 목적
 
-이 문서는 `harness_framework` 레포에서 구현 기준으로 삼는 1차 MVP PRD다.
+이 문서는 `dure` 레포에서 구현 기준으로 삼는 1차 MVP PRD다.
 
 - 회의용 소개 문서보다 `무엇을 만들고`, `무엇을 만들지 않으며`, `어떤 규칙으로 구현할지`를 명확히 하는 데 목적이 있다.
-- 화면 톤과 UI 규칙은 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/UI_GUIDE.md)를 따른다.
+- 화면 톤과 UI 규칙은 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/UI_GUIDE.md)를 따른다.
 - 기술 구조와 구현 세부사항은 `ARCHITECTURE.md`, 의사결정 기록은 `ADR.md`로 분리한다.
 
 ## 1차 구현 목표
@@ -666,7 +666,7 @@ flowchart TD
 
 1. 강사 입력 흐름은 짧고 빠르게 끝나야 한다.
 2. 기관 운영자 조회 화면은 필터링과 스캔 속도를 우선해야 한다.
-3. UI는 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/UI_GUIDE.md)의 메신저형 운영 UI 방향을 따라야 한다.
+3. UI는 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/UI_GUIDE.md)의 메신저형 운영 UI 방향을 따라야 한다.
 4. 데스크톱에서도 모바일 앱처럼 익숙한 탐색 구조를 유지해야 한다.
 5. 시스템이 복잡한 워크플로우 도구처럼 보이기보다, 가벼운 운영 콘솔처럼 보여야 한다.
 6. 기관 간 데이터 격리는 신뢰성 측면에서 가장 중요한 요구사항 중 하나다.
@@ -688,6 +688,6 @@ flowchart TD
 
 ## 연결 문서
 
-- [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/UI_GUIDE.md)
-- [ARCHITECTURE.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/ARCHITECTURE.md)
-- [ADR.md](/Users/nojonghyeon/Documents/GitHub/harness_framework/docs/ADR.md)
+- [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/UI_GUIDE.md)
+- [ARCHITECTURE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/ARCHITECTURE.md)
+- [ADR.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/ADR.md)

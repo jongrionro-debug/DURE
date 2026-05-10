@@ -6,7 +6,7 @@ describe("env helpers", () => {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: "anon-key",
     SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
     DATABASE_URL:
-      "postgresql://postgres:postgres@127.0.0.1:5432/harness_framework",
+      "postgresql://postgres:postgres@127.0.0.1:5432/dure",
   };
 
   it("parses the required local MVP env keys", () => {
@@ -20,14 +20,14 @@ describe("env helpers", () => {
         NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "publishable-key",
         SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
         DATABASE_URL:
-          "postgresql://postgres:postgres@127.0.0.1:5432/harness_framework",
+          "postgresql://postgres:postgres@127.0.0.1:5432/dure",
       }),
     ).toEqual({
       NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "publishable-key",
       SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
       DATABASE_URL:
-        "postgresql://postgres:postgres@127.0.0.1:5432/harness_framework",
+        "postgresql://postgres:postgres@127.0.0.1:5432/dure",
     });
   });
 
@@ -67,7 +67,7 @@ describe("env helpers", () => {
         NEXT_PUBLIC_SUPABASE_URL: "https://example.supabase.co",
         SUPABASE_SERVICE_ROLE_KEY: "service-role-key",
         DATABASE_URL:
-          "postgresql://postgres:postgres@127.0.0.1:5432/harness_framework",
+          "postgresql://postgres:postgres@127.0.0.1:5432/dure",
       }),
     ).toThrowError(
       /NEXT_PUBLIC_SUPABASE_ANON_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY is required/,

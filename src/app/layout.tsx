@@ -8,7 +8,7 @@ const notoSansKr = Noto_Sans_KR({
 });
 
 export const metadata: Metadata = {
-  title: "Harness Framework",
+  title: "Dure",
   description: "Local-first education operations MVP scaffold.",
 };
 
