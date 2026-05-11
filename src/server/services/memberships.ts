@@ -223,10 +223,6 @@ export async function acceptOrganizationInvite(
     throw new Error("만료된 초대 토큰입니다.");
   }
 
-  if (invite.email !== input.email.trim().toLowerCase()) {
-    throw new Error("초대받은 이메일로 로그인한 뒤 다시 시도해 주세요.");
-  }
-
   if (invite.role === "platform_admin") {
     throw new Error("현재 초대 토큰 역할은 지원되지 않습니다.");
   }
