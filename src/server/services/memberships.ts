@@ -1,12 +1,13 @@
 import { randomUUID } from "node:crypto";
 
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, isNull } from "drizzle-orm";
 
 import { getDb } from "@/lib/db/client";
 import {
   classes,
   organizationInvites,
   organizationMemberships,
+  sessions,
   teacherAssignments,
   users,
 } from "@/lib/db/schema";
@@ -46,6 +47,11 @@ type MembershipRepository = {
   } | null>;
   insertTeacherAssignment(
     values: typeof teacherAssignments.$inferInsert,
+  ): Promise<void>;
+  updateUnassignedSessionsTeacher(
+    organizationId: string,
+    classId: string,
+    teacherId: string,
   ): Promise<void>;
 };
 
@@ -145,6 +151,21 @@ function createMembershipRepository(): MembershipRepository {
     },
     async insertTeacherAssignment(values) {
       await db.insert(teacherAssignments).values(values);
+    },
+    async updateUnassignedSessionsTeacher(organizationId, classId, teacherId) {
+      await db
+        .update(sessions)
+        .set({
+          teacherId,
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            eq(sessions.organizationId, organizationId),
+            eq(sessions.classId, classId),
+            isNull(sessions.teacherId),
+          ),
+        );
     },
   };
 }
@@ -278,6 +299,12 @@ export async function assignTeacherToClass(
     userId: input.userId,
     classId: input.classId,
   });
+
+  await repository.updateUnassignedSessionsTeacher(
+    input.organizationId,
+    input.classId,
+    input.userId,
+  );
 }
 
 export async function listMembershipOverview(organizationId: string) {
