@@ -51,7 +51,7 @@ async function requireOrganizationAdmin() {
 export async function createInviteAction(
   _: MembershipActionState,
   formData: FormData,
-) {
+): Promise<MembershipActionState> {
   const access = await requireOrganizationAdmin();
   if ("error" in access) {
     return { message: access.error };
@@ -85,7 +85,7 @@ export async function createInviteAction(
 export async function updateMemberRoleAction(
   _: MembershipActionState,
   formData: FormData,
-) {
+): Promise<MembershipActionState> {
   const access = await requireOrganizationAdmin();
   if ("error" in access) {
     return { message: access.error };
@@ -116,7 +116,7 @@ export async function updateMemberRoleAction(
 export async function approveMemberAction(
   _: MembershipActionState,
   formData: FormData,
-) {
+): Promise<MembershipActionState> {
   const access = await requireOrganizationAdmin();
   if ("error" in access) {
     return { message: access.error };
@@ -149,7 +149,7 @@ export async function approveMemberAction(
 export async function assignTeacherAction(
   _: MembershipActionState,
   formData: FormData,
-) {
+): Promise<MembershipActionState> {
   const access = await requireOrganizationAdmin();
   if ("error" in access) {
     return { message: access.error };

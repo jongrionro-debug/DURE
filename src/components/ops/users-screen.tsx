@@ -43,6 +43,7 @@ type UserManagementData = {
 type ActionState = {
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
+  token?: string;
 };
 
 type IconName =
