@@ -12,7 +12,8 @@ export const sessionCreateSchema = z.object({
     .string()
     .uuid("유효한 강사 id가 필요합니다.")
     .optional()
-    .or(z.literal("")),
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
   excludedParticipantIds: z
     .array(z.string().uuid("유효한 참여자 id가 필요합니다."))
     .default([]),
@@ -24,7 +25,8 @@ export const sessionTeacherAssignmentSchema = z.object({
     .string()
     .uuid("유효한 강사 id가 필요합니다.")
     .optional()
-    .or(z.literal("")),
+    .or(z.literal(""))
+    .transform((val) => (val === "" ? undefined : val)),
 });
 
 export const existingSessionParticipantSchema = z.object({
