@@ -578,10 +578,21 @@ export function UsersScreen({ data }: { data: UserManagementData }) {
                 </label>
                 <button className={primaryButtonClassName}>
                   <Icon name="send" className="h-5 w-5" />
-                  초대 토큰 발급
+                  초대 토큰 발급하기
                 </button>
               </form>
               <Feedback state={inviteState} />
+              {inviteState.token && (
+                <div className="mt-3 rounded-[12px] border border-[var(--color-accent)] bg-[var(--color-accent-surface)] px-4 py-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-bold text-[var(--color-accent)]">발급된 토큰</p>
+                    <CopyInviteTokenButton token={inviteState.token} />
+                  </div>
+                  <code className="mt-2 block max-w-full break-all rounded-[10px] bg-[var(--color-surface)] px-3 py-2 text-xs text-[var(--color-text-secondary)]">
+                    {inviteState.token}
+                  </code>
+                </div>
+              )}
 
               <div className="mt-5 space-y-3">
                 {data.invites.length ? (

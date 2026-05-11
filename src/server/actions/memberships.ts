@@ -19,6 +19,7 @@ import {
 type MembershipActionState = {
   message?: string;
   fieldErrors?: Record<string, string[] | undefined>;
+  token?: string;
 };
 
 async function requireOrganizationAdmin() {
@@ -76,7 +77,8 @@ export async function createInviteAction(
 
   revalidatePath("/users");
   return {
-    message: `초대 링크를 만들었습니다. 토큰: ${invite.inviteToken}`,
+    message: "초대 토큰이 발급되었습니다.",
+    token: invite.inviteToken,
   };
 }
 
@@ -181,5 +183,7 @@ export async function assignTeacherAction(
   }
 
   revalidatePath("/users");
+  revalidatePath("/dashboard");
+  revalidatePath("/records");
   return { message: "강사를 수업에 배정했습니다." };
 }
