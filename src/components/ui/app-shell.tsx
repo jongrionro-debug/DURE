@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -21,6 +24,7 @@ const teacherNav = [{ href: "/sessions", label: "내 수업 일정", icon: "◈"
 export function AppShell({ role, email, children }: AppShellProps) {
   const nav = role === "teacher" ? teacherNav : opsNav;
   const roleLabel = role === "teacher" ? "강사 영역" : "운영자 영역";
+  const pathname = usePathname();
 
   return (
     <div className="flex min-h-screen bg-[var(--color-background)] text-[var(--color-text-primary)]">
@@ -33,7 +37,7 @@ export function AppShell({ role, email, children }: AppShellProps) {
             <p className="text-[13px] font-extrabold leading-tight text-white">
               DURE
             </p>
-            <p className="text-[10px] leading-tight text-[#d4d4d8]">
+            <p className="text-[10px] leading-tight text-[#8E9096]">
               운영 시스템
             </p>
           </div>
@@ -44,18 +48,22 @@ export function AppShell({ role, email, children }: AppShellProps) {
         </span>
 
         <nav className="mt-5 flex flex-col gap-0.5" aria-label="주요 메뉴">
-          {nav.map((item) => (
+          {nav.map((item) => {
+            const isActive = pathname === item.href;
+            return (
             <Link
               key={`${item.href}-${item.label}`}
               href={item.href}
-              className="flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium text-[#d4d4d8] transition-colors hover:bg-[rgba(142,144,150,0.12)] hover:text-white"
+              className="flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium transition-colors hover:bg-[rgba(142,144,150,0.12)] hover:text-white"
+              style={{ background: isActive ? "#517BF6" : undefined, color: isActive ? "#ffffff" : "#8E9096" }}
             >
               <span className="w-5 text-center text-[18px]" aria-hidden="true">
                 {item.icon}
               </span>
               {item.label}
             </Link>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="mt-auto border-t border-[rgba(142,144,150,0.2)] pt-4">
@@ -65,7 +73,7 @@ export function AppShell({ role, email, children }: AppShellProps) {
               <p className="truncate text-[11px] font-bold text-white">
                 {role === "teacher" ? "강사" : "운영자"}
               </p>
-              <p className="truncate text-[10px] text-[#d4d4d8]">
+              <p className="truncate text-[10px] text-[#8E9096]">
                 {email ?? "로그인 사용자"}
               </p>
             </div>
