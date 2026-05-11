@@ -31,7 +31,7 @@ export function PreDashboardShell({
             <p className="text-[13px] font-extrabold leading-tight text-white">
               DURE
             </p>
-            <p className="text-[10px] leading-tight text-[var(--color-sidebar-ink)]">
+            <p className="text-[10px] leading-tight text-[#8E9096]">
               운영 시스템
             </p>
           </div>
@@ -43,15 +43,16 @@ export function PreDashboardShell({
 
         <nav className="mt-5 flex flex-col gap-0.5" aria-label={sidebarLabel}>
           {navItems.map((item) => {
-            const className = `flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium transition-colors ${
-              item.active
-                ? "bg-[var(--color-accent)] text-white"
-                : "text-[var(--color-sidebar-ink)] hover:bg-[rgba(142,144,150,0.12)]"
-            }`;
+            const baseClassName =
+              "flex items-center gap-3 rounded-[14px] px-3 py-[9px] text-[13px] font-medium transition-colors hover:bg-[rgba(142,144,150,0.12)]";
+            const itemStyle = {
+              background: item.active ? "#517BF6" : undefined,
+              color: item.active ? "#ffffff" : "#8E9096",
+            };
 
             if (!item.href) {
               return (
-                <span key={item.label} className={className}>
+                <span key={item.label} className={baseClassName} style={itemStyle}>
                   <span className="w-5 text-center text-[15px]" aria-hidden="true">
                     ◈
                   </span>
@@ -61,7 +62,7 @@ export function PreDashboardShell({
             }
 
             return (
-              <Link key={item.label} href={item.href} className={className}>
+              <Link key={item.label} href={item.href} className={baseClassName} style={itemStyle}>
                 <span className="w-5 text-center text-[15px]" aria-hidden="true">
                   ◈
                 </span>
