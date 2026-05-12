@@ -666,7 +666,7 @@ flowchart TD
 
 1. 강사 입력 흐름은 짧고 빠르게 끝나야 한다.
 2. 기관 운영자 조회 화면은 필터링과 스캔 속도를 우선해야 한다.
-3. UI는 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/UI_GUIDE.md)의 메신저형 운영 UI 방향을 따라야 한다.
+3. UI는 [UI_GUIDE.md](/Users/nojonghyeon/Documents/GitHub/dure/docs/UI_GUIDE.md)의 운영 콘솔 방향을 따라야 한다.
 4. 데스크톱에서도 모바일 앱처럼 익숙한 탐색 구조를 유지해야 한다.
 5. 시스템이 복잡한 워크플로우 도구처럼 보이기보다, 가벼운 운영 콘솔처럼 보여야 한다.
 6. 기관 간 데이터 격리는 신뢰성 측면에서 가장 중요한 요구사항 중 하나다.

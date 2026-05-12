@@ -148,11 +148,17 @@ SUPABASE_ATTACHMENTS_BUCKET=
 
 링크만으로 체험 가능한 데모는 Vercel + 전용 Supabase 프로젝트 조합으로 운영한다.
 
+데모 환경에는 로컬 필수 값과 함께 아래 값을 준비한다.
+
+```env
+RESEND_API_KEY=
+EMAIL_FROM=
+SUPABASE_ATTACHMENTS_BUCKET=
+```
+
 핵심 순서:
 
 ```bash
 npm run db:migrate
 npm run db:seed:demo
 ```
-
-필요한 demo 환경변수와 세부 절차는 `docs/ENV_SETUP.md`의 `공개 데모 링크 환경` 섹션을 따른다.
