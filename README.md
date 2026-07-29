@@ -1,4 +1,13 @@
-# dure
+# DURE — 초기 개발 기록
+
+> [!IMPORTANT]
+> 이 저장소는 DURE의 2026년 4월~5월 초기 개발 과정을 보존하는 읽기 전용 기록입니다.
+> 현재 제품의 코드와 이슈는 [TechForImpact-KeunGeulSsi/Dure](https://github.com/TechForImpact-KeunGeulSsi/Dure)에서 관리합니다.
+> 실행 중인 공개 데모는 [dure-phi.vercel.app](https://dure-phi.vercel.app/)에서 확인할 수 있습니다.
+>
+> 아래 내용은 당시 개발 환경을 재현하기 위한 기록이며 현재 canonical 설정과 다를 수 있습니다.
+
+## 초기 개발 환경
 
 이 저장소는 다른 사람이 로컬에서 같은 개발 환경으로 빠르게 붙을 수 있도록 아래 순서대로 세팅하면 된다.
 
